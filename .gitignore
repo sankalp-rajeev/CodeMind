@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Markdown files (except README.md)
+*.md
+!README.md
+
+# Documentation (private)
+docs/
+.Python
+venv/
+env/
+.venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Data (local only)
+data/
+chroma_db/
+mlruns/
+
+# Environment
+.env
+.env.local
+*.env
+
+# Build
+dist/
+build/
+*.egg-info/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.cache/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Agent workspace (personal)
+.agent/
+
+# Temporary
+tmp/
+temp/
+*.tmp
