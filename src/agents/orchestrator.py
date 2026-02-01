@@ -49,7 +49,7 @@ class OrchestratorAgent(BaseAgent):
     def __init__(
         self,
         agents: Optional[Dict[str, BaseAgent]] = None,
-        model: str = "qwen2.5:7b"
+        model: str = "orchestrator-ft"
     ):
         """
         Initialize the Orchestrator.
@@ -263,7 +263,7 @@ def test_orchestrator():
     print("=" * 50)
     
     # Initialize orchestrator
-    orchestrator = OrchestratorAgent(model="qwen2.5:7b")
+    orchestrator = OrchestratorAgent(model="orchestrator-ft")
     
     # Test intent classification
     test_queries = [

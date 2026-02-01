@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Bot, WifiOff, FolderOpen, Loader2, Zap, Wrench, TestTube, FileSearch, BookOpen, MessageSquare, PanelLeftClose, PanelLeft, Sparkles } from 'lucide-react'
+import { WifiOff, FolderOpen, Loader2, Wrench, TestTube, FileSearch, BookOpen, MessageSquare, PanelLeftClose, PanelLeft, Code2, BarChart3 } from 'lucide-react'
 import ChatMessage from '../components/Chat/ChatMessage'
 import ChatInput from '../components/Chat/ChatInput'
 import RoutingFlow from '../components/Chat/RoutingFlow'
@@ -14,6 +14,7 @@ import RefactorPanel from '../components/Crew/RefactorPanel'
 import TestPanel from '../components/Crew/TestPanel'
 import ReviewPanel from '../components/Crew/ReviewPanel'
 import DocsPage from '../components/Docs/DocsPage'
+import MetricsPage from '../components/Metrics/MetricsPage'
 import FileExplorer from '../components/Explorer/FileExplorer'
 
 const WS_URL = 'ws://localhost:8000/ws/chat'
@@ -34,7 +35,7 @@ export default function ChatPage() {
     const { state: testState, startTesting, cancel: cancelTest, reset: resetTest } = useTestCrewWebSocket()
     const { state: reviewState, startReview, cancel: cancelReview, reset: resetReview } = useReviewCrewWebSocket()
 
-    const [activeTab, setActiveTab] = useState<'chat' | 'docs'>('chat')
+    const [activeTab, setActiveTab] = useState<'chat' | 'docs' | 'metrics'>('chat')
     const [showIndexPanel, setShowIndexPanel] = useState(false)
     const [showRefactorPanel, setShowRefactorPanel] = useState(false)
     const [showTestPanel, setShowTestPanel] = useState(false)
@@ -51,16 +52,16 @@ export default function ChatPage() {
             const welcomeMessage: Message = {
                 id: 'welcome',
                 role: 'assistant',
-                content: `Welcome to **CodeMind**
+                content: `**CodeMind** — AI-Powered Code Intelligence
 
-I'm your AI-powered codebase assistant. I can help you:
-- **Explore** - Understand code structure and functionality
-- **Refactor** - Improve code quality and performance
-- **Test** - Generate comprehensive unit tests
-- **Security** - Find vulnerabilities and fixes
-- **Document** - Add clear documentation
+Capabilities:
+- **Explore** — Understand code structure and dependencies
+- **Refactor** — Optimize performance and code quality  
+- **Test** — Generate comprehensive test suites
+- **Security** — Identify vulnerabilities and fixes
+- **Document** — Create clear documentation
 
-${status?.indexed ? `Codebase indexed: **${status.chunks}** chunks ready` : 'Get started by indexing a codebase. Click the folder icon above.'}`,
+${status?.indexed ? `Index Status: **${status.chunks}** chunks ready for analysis` : 'To begin, index a codebase using the folder icon in the toolbar.'}`,
                 timestamp: new Date()
             }
             setMessages([welcomeMessage])
@@ -117,7 +118,7 @@ You can now ask questions about the code.`,
                         {/* Logo */}
                         <div className="flex items-center gap-3">
                             <div className="w-9 h-9 rounded-lg bg-brand flex items-center justify-center shadow-sm">
-                                <Sparkles className="w-5 h-5 text-white" strokeWidth={2} />
+                                <Code2 className="w-5 h-5 text-white" strokeWidth={2} />
                             </div>
                             <div>
                                 <h1 className="text-lg font-semibold text-text-primary tracking-tight">CodeMind</h1>
@@ -125,12 +126,12 @@ You can now ask questions about the code.`,
                                     {isConnected ? (
                                         <span className="flex items-center gap-1.5 text-success">
                                             <span className="w-1.5 h-1.5 rounded-full bg-success" />
-                                            Connected
+                                            Online
                                         </span>
                                     ) : (
                                         <span className="flex items-center gap-1.5 text-danger">
                                             <WifiOff className="w-3 h-3" />
-                                            Disconnected
+                                            Offline
                                         </span>
                                     )}
                                     {status?.indexed && (
@@ -156,13 +157,20 @@ You can now ask questions about the code.`,
                                 <BookOpen className="w-4 h-4" />
                                 Docs
                             </button>
+                            <button
+                                onClick={() => setActiveTab('metrics')}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'metrics' ? 'bg-surface text-text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
+                            >
+                                <BarChart3 className="w-4 h-4" />
+                                Metrics
+                            </button>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-1">
                         {currentIntent && (
                             <span className="badge badge-brand mr-2">
-                                <Zap className="w-3 h-3" /> {currentIntent}
+                                {currentIntent}
                             </span>
                         )}
                         
@@ -276,13 +284,15 @@ You can now ask questions about the code.`,
                                             <span className="w-2 h-2 bg-brand rounded-full animate-bounce" style={{ animationDelay: '120ms' }} />
                                             <span className="w-2 h-2 bg-brand rounded-full animate-bounce" style={{ animationDelay: '240ms' }} />
                                         </div>
-                                        <span className="text-sm">Thinking...</span>
+                                        <span className="text-sm">Processing...</span>
                                     </div>
                                 )}
                                 <div ref={messagesEndRef} />
                             </div>
-                        ) : (
+                        ) : activeTab === 'docs' ? (
                             <DocsPage />
+                        ) : (
+                            <MetricsPage />
                         )}
                     </main>
 
@@ -320,6 +330,20 @@ You can now ask questions about the code.`,
                 <CrewProgress
                     crewState={crewState}
                     onClose={() => {
+                        // Save results to chat before closing (check !isRunning instead of status)
+                        if (!crewState.isRunning && crewState.agentOutputs.length > 0) {
+                            const target = crewState.target || 'target'
+                            const outputSummary = crewState.agentOutputs
+                                .map(o => `### ${o.agent}\n${o.output.slice(0, 1500)}${o.output.length > 1500 ? '...' : ''}`)
+                                .join('\n\n---\n\n')
+                            
+                            setMessages(prev => [...prev, {
+                                id: `crew-${Date.now()}`,
+                                role: 'assistant',
+                                content: `**RefactoringCrew Analysis** — \`${target}\`\n\n${outputSummary}`,
+                                timestamp: new Date()
+                            }])
+                        }
                         setShowCrewProgress(false)
                         reset()
                     }}
@@ -353,7 +377,17 @@ You can now ask questions about the code.`,
                     isRunning={testState.isRunning}
                     result={testState.result}
                     error={testState.error}
-                    onClose={() => resetTest()}
+                    onClose={() => {
+                        if (testState.result) {
+                            setMessages(prev => [...prev, {
+                                id: `test-${Date.now()}`,
+                                role: 'assistant',
+                                content: `**TestingCrew Result**\n\n${testState.result.slice(0, 3000)}${testState.result.length > 3000 ? '...' : ''}`,
+                                timestamp: new Date()
+                            }])
+                        }
+                        resetTest()
+                    }}
                     onCancel={() => cancelTest()}
                 />
             )}
@@ -364,7 +398,17 @@ You can now ask questions about the code.`,
                     isRunning={reviewState.isRunning}
                     result={reviewState.result}
                     error={reviewState.error}
-                    onClose={() => resetReview()}
+                    onClose={() => {
+                        if (reviewState.result) {
+                            setMessages(prev => [...prev, {
+                                id: `review-${Date.now()}`,
+                                role: 'assistant',
+                                content: `**CodeReviewCrew Result**\n\n${reviewState.result.slice(0, 3000)}${reviewState.result.length > 3000 ? '...' : ''}`,
+                                timestamp: new Date()
+                            }])
+                        }
+                        resetReview()
+                    }}
                     onCancel={() => cancelReview()}
                 />
             )}

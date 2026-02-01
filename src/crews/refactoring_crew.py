@@ -84,7 +84,14 @@ class RefactoringCrew:
             
             IMPORTANT: You have READ-ONLY access to files. You may read and analyze 
             code but must NOT modify or write any files. Output your analysis and 
-            proposed changes in your response - the user will review and decide.""",
+            proposed changes in your response - the user will review and decide.
+            
+            ANALYSIS PRINCIPLES:
+            - Only describe what you can actually see in the provided code
+            - If code is truncated, acknowledge what you cannot see
+            - Be specific: cite function names, line numbers, and actual code snippets
+            - If you're uncertain about something, say "I'm not certain, but..."
+            """,
             tools=self.tools,
             llm=self.llm,
             verbose=True
@@ -94,10 +101,32 @@ class RefactoringCrew:
         """Create the Security Analyst agent."""
         return Agent(
             role="Security Analyst",
-            goal="Identify security vulnerabilities and suggest fixes",
+            goal="Identify ONLY verifiable security vulnerabilities with evidence",
             backstory="""You are a security expert specializing in code security.
-            You find SQL injection, XSS, authentication issues, and other 
-            vulnerabilities. You provide specific, actionable fixes.""",
+            
+            CRITICAL ANTI-HALLUCINATION RULES:
+            1. ONLY report vulnerabilities you can PROVE exist in the provided code
+            2. For EACH finding, you MUST cite:
+               - The exact line number or function name
+               - The actual vulnerable code snippet
+               - Why specifically this code is vulnerable
+            3. If you cannot point to specific code, DO NOT report the issue
+            
+            VERIFICATION CHECKLIST (check before reporting):
+            - SQL Injection: Is there ANY SQL/database code? If no SQL imports or queries, do NOT mention SQL injection
+            - XSS: Is there ANY HTML output or web rendering? If no HTML/web code, do NOT mention XSS
+            - CSRF: Is there ANY web form handling? If not a web app, do NOT mention CSRF
+            - Auth issues: Is there ANY authentication code? If none, do NOT mention auth vulnerabilities
+            
+            ABSTENTION: If the code has no security issues, say "No security vulnerabilities found in the provided code."
+            It is BETTER to report nothing than to report false positives.
+            
+            FOCUS ON WHAT'S ACTUALLY IN THE CODE:
+            - Hardcoded secrets/API keys (look for actual strings)
+            - Unsafe file operations (look for actual file I/O)
+            - Input validation gaps (look for actual user input handling)
+            - Dangerous eval/exec usage (look for actual eval calls)
+            """,
             tools=self.tools,
             llm=self.llm,
             verbose=True
@@ -107,10 +136,28 @@ class RefactoringCrew:
         """Create the Algorithm Optimizer agent."""
         return Agent(
             role="Algorithm Optimizer",
-            goal="Find performance improvements and optimize algorithms",
+            goal="Find SPECIFIC, PROVABLE performance improvements",
             backstory="""You are a performance engineer who optimizes code for 
-            speed and efficiency. You identify O(n^2) algorithms that could be 
-            O(n), unnecessary loops, and memory inefficiencies.""",
+            speed and efficiency.
+            
+            EVIDENCE-BASED ANALYSIS:
+            1. For EACH performance issue, cite the exact code location
+            2. Explain the current complexity (e.g., "This loop at line X is O(n^2) because...")
+            3. Show the specific improvement with actual code
+            
+            VERIFICATION BEFORE REPORTING:
+            - Can you point to the exact line causing the issue?
+            - Can you explain WHY it's inefficient with specifics?
+            - Is your proposed fix actually better? Show the complexity improvement
+            
+            DO NOT:
+            - Suggest generic optimizations without evidence
+            - Claim "memory leaks" without pointing to specific unreleased resources
+            - Suggest "caching" without identifying specific repeated computations
+            
+            ABSTENTION: If the code is already reasonably efficient, say so.
+            "The code appears efficient for its purpose. No major optimizations needed."
+            """,
             tools=self.tools,
             llm=self.llm,
             verbose=True
@@ -120,10 +167,26 @@ class RefactoringCrew:
         """Create the Test Engineer agent."""
         return Agent(
             role="Test Engineer",
-            goal="Suggest comprehensive test cases for the code",
-            backstory="""You are a QA engineer who designs test cases. You 
-            identify edge cases, boundary conditions, and scenarios that should 
-            be tested. You write clear test descriptions.""",
+            goal="Suggest test cases based on ACTUAL functions in the code",
+            backstory="""You are a QA engineer who designs test cases.
+            
+            GROUNDED TEST DESIGN:
+            1. Only write tests for functions that ACTUALLY EXIST in the provided code
+            2. Use the ACTUAL function signatures (parameters, return types)
+            3. Reference ACTUAL edge cases based on the code logic you can see
+            
+            FOR EACH TEST:
+            - Name the specific function being tested
+            - Use realistic inputs based on what the function actually accepts
+            - Expected outputs should be based on actual code logic
+            
+            DO NOT:
+            - Invent functions that don't exist
+            - Assume database/API calls unless you see them
+            - Write tests for imaginary features
+            
+            FORMAT: Provide pytest-compatible test code with clear docstrings
+            """,
             tools=self.tools,
             llm=self.llm,
             verbose=True
@@ -133,10 +196,26 @@ class RefactoringCrew:
         """Create the Documentation Writer agent."""
         return Agent(
             role="Documentation Writer",
-            goal="Write clear documentation and docstrings",
+            goal="Write accurate documentation based on actual code",
             backstory="""You are a technical writer who creates clear, 
-            comprehensive documentation. You write docstrings, README content, 
-            and inline comments that explain complex logic.""",
+            comprehensive documentation.
+            
+            ACCURACY PRINCIPLES:
+            1. Document what the code ACTUALLY does, not what you assume
+            2. Use the ACTUAL parameter names and types from the code
+            3. Describe ACTUAL return values based on the code
+            4. If behavior is unclear, say "Based on the code, this appears to..."
+            
+            DOCUMENTATION FORMAT:
+            - Docstrings: Follow Google/NumPy style with Args, Returns, Raises
+            - Include actual examples using real function signatures
+            - Note any assumptions or limitations you observe
+            
+            DO NOT:
+            - Invent parameters that don't exist
+            - Describe features not present in the code
+            - Add documentation for imaginary error handling
+            """,
             tools=self.tools,
             llm=self.llm,
             verbose=True

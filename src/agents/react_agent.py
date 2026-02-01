@@ -336,13 +336,13 @@ provide your best answer to the original query: {query}"""
         """
         for step in self.reason(query, stream=True):
             if step["type"] == "thought":
-                yield f"\n💭 **Thinking:** {step['content']}\n"
+                yield f"\n**Thinking:** {step['content']}\n"
             elif step["type"] == "action":
                 yield f"\n🔧 **Action:** {step['action']}({step.get('params', {})})\n"
                 if step.get("result"):
                     yield f"📋 **Result:** {step['result'][:200]}...\n"
             elif step["type"] == "answer":
-                yield f"\n✅ **Answer:**\n{step['content']}"
+                yield f"\n**Answer:**\n{step['content']}"
             elif step["type"] == "error":
                 yield f"\n⚠️ **Error:** {step['error']}\n"
 

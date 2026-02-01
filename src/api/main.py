@@ -35,6 +35,25 @@ def get_tracker_safe():
         return None, None
 
 
+def clean_llm_output(text: str) -> str:
+    """Remove LLM special tokens (DeepSeek, etc.) from output."""
+    if not text:
+        return text
+    # DeepSeek tokens
+    tokens_to_remove = [
+        '<｜begin▁of▁sentence｜>',
+        '<｜end▁of▁sentence｜>',
+        '<|im_start|>',
+        '<|im_end|>',
+        '<|endoftext|>',
+    ]
+    for token in tokens_to_remove:
+        text = text.replace(token, '')
+    # Also clean any remaining special token patterns like <｜...｜>
+    text = re.sub(r'<｜[^｜]+｜>', '', text)
+    return text.strip()
+
+
 def get_memory_safe():
     """Get conversation memory."""
     try:
@@ -484,7 +503,6 @@ async def process_crew_request(websocket: WebSocket, crew_name: str, query: str)
     await websocket.send_json({
         "type": "routing_step",
         "step": "crew_start",
-        "icon": "🚀",
         "title": f"{crew_name.replace('_', ' ').title()} Started",
         "detail": "Initializing multi-agent workflow..."
     })
@@ -514,7 +532,7 @@ async def process_crew_request(websocket: WebSocket, crew_name: str, query: str)
             if not code:
                 await websocket.send_json({
                     "type": "token",
-                    "content": f"\n\n❌ Could not find or read the file. Please specify a file path in your message, e.g. `data/path/to/file.py` or \"path/to/file.py\". The codebase must be indexed first.\n\n"
+                    "content": f"\n\n**Error:** Could not find or read the file. Please specify a file path in your message, e.g. `data/path/to/file.py` or \"path/to/file.py\". The codebase must be indexed first.\n\n"
                 })
                 await websocket.send_json({"type": "done"})
                 return
@@ -544,7 +562,7 @@ async def process_crew_request(websocket: WebSocket, crew_name: str, query: str)
                 detail = f"Phase: {update.get('phase')}"
                 
             elif update["type"] == "crew_complete":
-                msg = "\n\n**✅ Execution Complete.**\n\n---\n\n"
+                msg = "\n\n**Execution Complete.**\n\n---\n\n"
                 
                 # Check for result content
                 result_text = ""
@@ -575,16 +593,15 @@ async def process_crew_request(websocket: WebSocket, crew_name: str, query: str)
                     except Exception:
                         pass
             
-            # Send content if any
+            # Send content if any (clean LLM tokens)
             if msg:
-                await websocket.send_json({"type": "token", "content": msg})
+                await websocket.send_json({"type": "token", "content": clean_llm_output(msg)})
                 
                 # Update UI status
                 if detail:
                     await websocket.send_json({
                         "type": "routing_step",
                         "step": "working",
-                        "icon": "⚙️",
                         "title": title,
                         "detail": detail
                     })
@@ -592,7 +609,7 @@ async def process_crew_request(websocket: WebSocket, crew_name: str, query: str)
             await asyncio.sleep(0.05)
 
     except Exception as e:
-         await websocket.send_json({"type": "token", "content": f"\n\n❌ Error executing crew: {str(e)}"})
+         await websocket.send_json({"type": "token", "content": f"\n\n**Error:** Failed executing crew: {str(e)}"})
 
     # Done
     await websocket.send_json({"type": "done"})
@@ -642,7 +659,6 @@ async def websocket_chat(websocket: WebSocket):
                 await websocket.send_json({
                     "type": "routing_step",
                     "step": "received",
-                    "icon": "📩",
                     "title": "Query Received",
                     "detail": message[:50] + ("..." if len(message) > 50 else "")
                 })
@@ -652,7 +668,6 @@ async def websocket_chat(websocket: WebSocket):
                 await websocket.send_json({
                     "type": "routing_step",
                     "step": "classifying",
-                    "icon": "🧠",
                     "title": "Orchestrator",
                     "detail": "Classifying intent..."
                 })
@@ -664,7 +679,6 @@ async def websocket_chat(websocket: WebSocket):
                 await websocket.send_json({
                     "type": "routing_step",
                     "step": "classified",
-                    "icon": "🎯",
                     "title": f"Intent: {intent.name}",
                     "detail": routing.get("description", "")
                 })
@@ -675,9 +689,8 @@ async def websocket_chat(websocket: WebSocket):
                 await websocket.send_json({
                     "type": "routing_step",
                     "step": "routing",
-                    "icon": "🔀",
                     "title": "Routing",
-                    "detail": f"→ {agent_name}"
+                    "detail": f"Agent: {agent_name}"
                 })
                 await asyncio.sleep(0.3)
                 
@@ -700,7 +713,6 @@ async def websocket_chat(websocket: WebSocket):
                         await websocket.send_json({
                             "type": "routing_step",
                             "step": "rag",
-                            "icon": "🔍",
                             "title": "RAG Search",
                             "detail": "Finding relevant code..."
                         })
@@ -709,7 +721,6 @@ async def websocket_chat(websocket: WebSocket):
                         await websocket.send_json({
                             "type": "routing_step",
                             "step": "generating",
-                            "icon": "💭",
                             "title": "Code Explorer",
                             "detail": "Generating response..."
                         })
@@ -799,11 +810,11 @@ async def websocket_refactor(websocket: WebSocket):
                 
                 # Define agent info
                 all_agents = [
-                    {"name": "Code Explorer", "role": "explorer", "icon": "🔍"},
-                    {"name": "Security Analyst", "role": "security", "icon": "🔒"},
-                    {"name": "Algorithm Optimizer", "role": "algorithm", "icon": "⚡"},
-                    {"name": "Test Engineer", "role": "tester", "icon": "🧪"},
-                    {"name": "Documentation Writer", "role": "documenter", "icon": "📝"}
+                    {"name": "Code Explorer", "role": "explorer"},
+                    {"name": "Security Analyst", "role": "security"},
+                    {"name": "Algorithm Optimizer", "role": "algorithm"},
+                    {"name": "Test Engineer", "role": "tester"},
+                    {"name": "Documentation Writer", "role": "documenter"}
                 ]
                 
                 # Filter agents based on focus
@@ -836,7 +847,6 @@ async def websocket_refactor(websocket: WebSocket):
                     await websocket.send_json({
                         "type": "agent_start",
                         "agent": agent["name"],
-                        "icon": agent["icon"],
                         "index": i,
                         "total": len(agents)
                     })
@@ -870,13 +880,18 @@ async def websocket_refactor(websocket: WebSocket):
                 # Actually run the crew and get result
                 result = crew.refactor(target=target, focus=focus)
                 
-                # Send individual agent outputs
+                # Send individual agent outputs (cleaned of LLM tokens)
                 agent_outputs = result.get("agent_outputs", [])
+                cleaned_outputs = []
                 for agent_result in agent_outputs:
+                    cleaned_output = {
+                        "agent": agent_result.get("agent", "Unknown"),
+                        "output": clean_llm_output(agent_result.get("output", ""))
+                    }
+                    cleaned_outputs.append(cleaned_output)
                     await websocket.send_json({
                         "type": "agent_result",
-                        "agent": agent_result.get("agent", "Unknown"),
-                        "output": agent_result.get("output", "")
+                        **cleaned_output
                     })
                     await asyncio.sleep(0.1)
                 
@@ -886,8 +901,8 @@ async def websocket_refactor(websocket: WebSocket):
                     "target": target,
                     "focus": focus,
                     "tasks_completed": result.get("tasks_completed", 0),
-                    "result": result.get("result", ""),
-                    "agent_outputs": agent_outputs
+                    "result": clean_llm_output(result.get("result", "")),
+                    "agent_outputs": cleaned_outputs
                 })
                 
             except Exception as e:
@@ -924,9 +939,11 @@ async def websocket_testing_crew(websocket: WebSocket):
             try:
                 crew = get_testing_crew()
                 
-                # Stream progress updates
+                # Stream progress updates (clean LLM tokens)
                 for progress in crew.run(target_code, target_file):
-                    await websocket.send_json(progress)
+                    # Clean any string fields that might contain LLM tokens
+                    cleaned = {k: clean_llm_output(v) if isinstance(v, str) else v for k, v in progress.items()}
+                    await websocket.send_json(cleaned)
                     await asyncio.sleep(0.1)
                     
             except Exception as e:
@@ -961,9 +978,11 @@ async def websocket_review_crew(websocket: WebSocket):
             try:
                 crew = get_review_crew()
                 
-                # Stream progress updates
+                # Stream progress updates (clean LLM tokens)
                 for progress in crew.run(code, file_path):
-                    await websocket.send_json(progress)
+                    # Clean any string fields that might contain LLM tokens
+                    cleaned = {k: clean_llm_output(v) if isinstance(v, str) else v for k, v in progress.items()}
+                    await websocket.send_json(cleaned)
                     await asyncio.sleep(0.1)
                     
             except Exception as e:

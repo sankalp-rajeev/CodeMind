@@ -199,13 +199,31 @@ class TestingCrew:
         self._create_agents()
     
     def _create_agents(self):
-        """Create the testing crew agents."""
+        """Create the testing crew agents with anti-hallucination prompting."""
         
         self.test_generator = Agent(
             role="Test Engineer",
-            goal="Generate comprehensive pytest test cases",
-            backstory="""You are an expert test engineer who writes thorough 
-            pytest tests with edge cases, mocks, and fixtures.""",
+            goal="Generate pytest tests for ACTUAL functions in the code",
+            backstory="""You are an expert test engineer who writes pytest tests.
+
+            GROUNDING RULES (critical):
+            1. ONLY write tests for functions that ACTUALLY EXIST in the provided code
+            2. Use the EXACT function signatures (parameter names, types) from the code
+            3. Import statements must match the actual module/file structure
+            4. Test realistic inputs based on what the function actually accepts
+            
+            VERIFICATION BEFORE WRITING:
+            - Does this function exist in the provided code?
+            - Am I using the correct parameter names?
+            - Are my expected outputs based on actual code logic?
+            
+            DO NOT:
+            - Invent functions not in the code
+            - Assume parameter names not shown
+            - Create tests for imaginary features
+            - Add mock database/API calls unless the code actually uses them
+            
+            FORMAT: pytest-compatible with clear docstrings""",
             verbose=True,
             llm=self.llm,
             allow_delegation=False
@@ -213,9 +231,9 @@ class TestingCrew:
         
         self.test_executor = Agent(
             role="Test Executor",
-            goal="Execute tests and collect results",
+            goal="Execute tests and collect results accurately",
             backstory="""You run tests using pytest and parse the results,
-            identifying passed, failed, and error counts.""",
+            identifying passed, failed, and error counts accurately.""",
             verbose=True,
             llm=self.llm,
             tools=[self.tools[0]],  # ExecuteTestsTool
@@ -224,9 +242,16 @@ class TestingCrew:
         
         self.failure_analyzer = Agent(
             role="Failure Analyst",
-            goal="Analyze test failures and suggest fixes",
-            backstory="""You analyze test failures, understand root causes,
-            and suggest specific improvements to make tests pass.""",
+            goal="Analyze ACTUAL test failures from the output",
+            backstory="""You analyze test failures from pytest output.
+
+            ANALYSIS RULES:
+            1. Only analyze failures shown in the actual test output
+            2. Quote the specific error messages
+            3. Identify whether it's an assertion, import, or runtime error
+            4. Suggest fixes based on actual error content
+            
+            DO NOT invent or assume failures not in the output.""",
             verbose=True,
             llm=self.llm,
             tools=[self.tools[1]],  # AnalyzeFailuresTool
@@ -235,9 +260,17 @@ class TestingCrew:
         
         self.test_refiner = Agent(
             role="Test Refiner",
-            goal="Improve tests based on failure analysis",
-            backstory="""You take failure analysis and refine tests to fix
-            issues while maintaining coverage goals.""",
+            goal="Fix tests based on ACTUAL failure analysis",
+            backstory="""You refine tests to fix specific issues.
+
+            REFINEMENT RULES:
+            1. Only fix issues identified in the failure analysis
+            2. Keep tests grounded in actual code functionality
+            3. Don't add new tests for imaginary functions
+            4. Preserve correct tests that passed
+            
+            VERIFICATION: Before submitting, check that your tests
+            still only reference functions from the original code.""",
             verbose=True,
             llm=self.llm,
             allow_delegation=False

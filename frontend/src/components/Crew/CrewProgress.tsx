@@ -1,5 +1,5 @@
 import { AgentState, CrewState } from '../../hooks/useCrewWebSocket'
-import { X, Play, Loader2, CheckCircle2, Circle, ArrowRight } from 'lucide-react'
+import { X, Play, Loader2, CheckCircle2, Circle, ArrowRight, Search, Shield, Zap, TestTube, FileText } from 'lucide-react'
 
 interface CrewProgressProps {
     crewState: CrewState
@@ -7,8 +7,22 @@ interface CrewProgressProps {
     onCancel: () => void
 }
 
+// Map agent names to icons
+const agentIcons: Record<string, React.ElementType> = {
+    'Code Explorer': Search,
+    'Security Analyst': Shield,
+    'Algorithm Optimizer': Zap,
+    'Test Engineer': TestTube,
+    'Documentation Writer': FileText,
+}
+
 export default function CrewProgress({ crewState, onClose, onCancel }: CrewProgressProps) {
     const { isRunning, target, focus, agents, currentAgentIndex, finalResult, agentOutputs, error } = crewState
+
+    const getAgentIcon = (agentName: string) => {
+        const Icon = agentIcons[agentName] || Circle
+        return Icon
+    }
 
     const getAgentStatusIcon = (agent: AgentState) => {
         if (agent.status === 'done') {
@@ -54,22 +68,25 @@ export default function CrewProgress({ crewState, onClose, onCancel }: CrewProgr
                 {/* Agent Pipeline */}
                 <div className="px-6 py-5 border-b border-border bg-surface">
                     <div className="flex items-center justify-center gap-2 overflow-x-auto pb-2">
-                        {agents.map((agent, index) => (
-                            <div key={agent.name} className="flex items-center">
-                                <div
-                                    className={`flex flex-col items-center p-3 rounded-xl border transition-all duration-300 min-w-[90px] ${getAgentBgClass(agent)}`}
-                                >
-                                    <span className="text-xl mb-1">{agent.icon}</span>
-                                    {getAgentStatusIcon(agent)}
-                                    <span className="text-xs text-text-primary mt-2 text-center font-medium">
-                                        {agent.name.split(' ')[0]}
-                                    </span>
+                        {agents.map((agent, index) => {
+                            const AgentIcon = getAgentIcon(agent.name)
+                            return (
+                                <div key={agent.name} className="flex items-center">
+                                    <div
+                                        className={`flex flex-col items-center p-3 rounded-xl border transition-all duration-300 min-w-[90px] ${getAgentBgClass(agent)}`}
+                                    >
+                                        <AgentIcon className="w-5 h-5 text-text-secondary mb-1" />
+                                        {getAgentStatusIcon(agent)}
+                                        <span className="text-xs text-text-primary mt-2 text-center font-medium">
+                                            {agent.name.split(' ')[0]}
+                                        </span>
+                                    </div>
+                                    {index < agents.length - 1 && (
+                                        <ArrowRight className={`w-5 h-5 mx-1 ${agent.status === 'done' ? 'text-success' : 'text-border-dark'}`} />
+                                    )}
                                 </div>
-                                {index < agents.length - 1 && (
-                                    <ArrowRight className={`w-5 h-5 mx-1 ${agent.status === 'done' ? 'text-success' : 'text-border-dark'}`} />
-                                )}
-                            </div>
-                        ))}
+                            )
+                        })}
                     </div>
                 </div>
 
@@ -112,10 +129,15 @@ export default function CrewProgress({ crewState, onClose, onCancel }: CrewProgr
                         </div>
                     ) : currentAgent ? (
                         <div>
-                            <p className="text-brand font-medium mb-3 flex items-center gap-2">
-                                <span className="text-xl">{currentAgent.icon}</span>
-                                {currentAgent.name} is working...
-                            </p>
+                            {(() => {
+                                const CurrentAgentIcon = getAgentIcon(currentAgent.name)
+                                return (
+                                    <p className="text-brand font-medium mb-3 flex items-center gap-2">
+                                        <CurrentAgentIcon className="w-5 h-5" />
+                                        {currentAgent.name} is working...
+                                    </p>
+                                )
+                            })()}
                             <div className="space-y-2">
                                 {currentAgent.output.map((line, i) => (
                                     <div

@@ -1,8 +1,8 @@
-import { ChevronDown, GitBranch } from 'lucide-react'
+import { ChevronDown, GitBranch, Inbox, Brain, Target, GitMerge, Search, MessageSquare, Settings, Rocket } from 'lucide-react'
 
 interface RoutingStep {
     step: string
-    icon: string
+    icon?: string
     title: string
     detail: string
     timestamp: Date
@@ -13,11 +13,25 @@ interface RoutingFlowProps {
     query?: string
 }
 
+// Map step types to icons
+const stepIcons: Record<string, React.ElementType> = {
+    'received': Inbox,
+    'classifying': Brain,
+    'classified': Target,
+    'routing': GitMerge,
+    'rag': Search,
+    'generating': MessageSquare,
+    'working': Settings,
+    'crew_start': Rocket,
+}
+
 export default function RoutingFlow({ steps, query }: RoutingFlowProps) {
     if (steps.length === 0) return null
 
     const isDecisionStep = (s: string) => ['classifying', 'classified', 'routing'].includes(s)
     const isActive = (i: number) => i === steps.length - 1
+    
+    const getStepIcon = (step: string) => stepIcons[step] || Settings
 
     return (
         <div className="mb-6 p-5 bg-surface rounded-2xl border border-border shadow-sm animate-fadeIn overflow-x-auto">
@@ -62,32 +76,39 @@ export default function RoutingFlow({ steps, query }: RoutingFlowProps) {
                             )}
 
                             {/* Node */}
-                            <div
-                                className={`flex items-center gap-3 px-4 py-3 min-w-[240px] max-w-[320px] transition-all ${
-                                    isDecisionStep(step.step)
-                                        ? 'rounded-lg border-2 border-dashed border-blue-300 bg-blue-50'
-                                        : 'rounded-xl border'
-                                } ${
-                                    isActive(index)
-                                        ? 'bg-brand-muted border-brand/40 shadow-sm ring-1 ring-brand/10'
-                                        : 'bg-surface-secondary border-border'
-                                }`}
-                            >
-                                <span className="text-xl flex-shrink-0">{step.icon}</span>
-                                <div className="flex-1 min-w-0">
-                                    <span className={`block font-medium text-sm ${isActive(index) ? 'text-brand' : 'text-text-primary'}`}>
-                                        {step.title}
-                                    </span>
-                                    {step.detail && (
-                                        <span className="block text-xs text-text-muted truncate mt-0.5">
-                                            {step.detail}
-                                        </span>
-                                    )}
-                                </div>
-                                {isActive(index) && (
-                                    <span className="w-2 h-2 rounded-full bg-brand animate-pulse flex-shrink-0" />
-                                )}
-                            </div>
+                            {(() => {
+                                const StepIcon = getStepIcon(step.step)
+                                return (
+                                    <div
+                                        className={`flex items-center gap-3 px-4 py-3 min-w-[240px] max-w-[320px] transition-all ${
+                                            isDecisionStep(step.step)
+                                                ? 'rounded-lg border-2 border-dashed border-blue-300 bg-blue-50'
+                                                : 'rounded-xl border'
+                                        } ${
+                                            isActive(index)
+                                                ? 'bg-brand-muted border-brand/40 shadow-sm ring-1 ring-brand/10'
+                                                : 'bg-surface-secondary border-border'
+                                        }`}
+                                    >
+                                        <div className="p-1.5 rounded-lg bg-surface-tertiary flex-shrink-0">
+                                            <StepIcon className={`w-4 h-4 ${isActive(index) ? 'text-brand' : 'text-text-secondary'}`} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <span className={`block font-medium text-sm ${isActive(index) ? 'text-brand' : 'text-text-primary'}`}>
+                                                {step.title}
+                                            </span>
+                                            {step.detail && (
+                                                <span className="block text-xs text-text-muted truncate mt-0.5">
+                                                    {step.detail}
+                                                </span>
+                                            )}
+                                        </div>
+                                        {isActive(index) && (
+                                            <span className="w-2 h-2 rounded-full bg-brand animate-pulse flex-shrink-0" />
+                                        )}
+                                    </div>
+                                )
+                            })()}
 
                             {/* Down arrow between nodes */}
                             {index < steps.length - 1 && (

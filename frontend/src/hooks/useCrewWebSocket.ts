@@ -90,7 +90,7 @@ export function useCrewWebSocket() {
                             ...prev,
                             agents: agentNames.map(name => ({
                                 name,
-                                icon: '⏳',
+                                icon: 'pending',
                                 status: 'pending' as const,
                                 output: []
                             }))
@@ -103,7 +103,7 @@ export function useCrewWebSocket() {
                             currentAgentIndex: data.index ?? prev.currentAgentIndex,
                             agents: prev.agents.map((agent, i) =>
                                 i === data.index
-                                    ? { ...agent, status: 'active' as const, icon: data.icon || '🔄' }
+                                    ? { ...agent, status: 'active' as const, icon: 'active' }
                                     : agent
                             )
                         }))
@@ -125,7 +125,7 @@ export function useCrewWebSocket() {
                             ...prev,
                             agents: prev.agents.map((agent, i) =>
                                 i === data.index
-                                    ? { ...agent, status: 'done' as const, icon: '✅', summary: data.summary }
+                                    ? { ...agent, status: 'done' as const, icon: 'done', summary: data.summary }
                                     : agent
                             )
                         }))
