@@ -57,7 +57,7 @@ mlruns/
 .env
 .env.local
 *.env
-!.env.example
+.env.example
 
 # ===========================================
 # Build & Dependencies
