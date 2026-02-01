@@ -104,6 +104,9 @@ EVALUATION_GROUND_TRUTH.md
 *.spec.md
 TEST_SCENARIOS.md
 
+# Images (README assets - keep local)
+*.png
+
 # External tools
 llama.cpp/
 
