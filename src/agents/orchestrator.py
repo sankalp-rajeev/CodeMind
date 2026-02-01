@@ -43,6 +43,7 @@ class OrchestratorAgent(BaseAgent):
     - Agent routing
     - Complexity assessment
     - Multi-agent coordination (for crews)
+    - ReAct loop for complex reasoning
     """
     
     def __init__(
@@ -67,6 +68,7 @@ class OrchestratorAgent(BaseAgent):
         
         self.agents = agents or {}
         self.intent_handlers: Dict[QueryIntent, Callable] = {}
+        self.react_agent = None  # Lazy load for complex queries
     
     def register_agent(self, name: str, agent: BaseAgent):
         """Register an agent for routing."""
@@ -86,10 +88,39 @@ class OrchestratorAgent(BaseAgent):
         Returns:
             Classified intent
         """
+        # Pre-check: vague "what's wrong" / debug queries -> GENERAL (user needs exploration first)
+        q_lower = query.lower().strip()
+        vague_patterns = [
+            "what's wrong", "whats wrong", "what is wrong",
+            "why isn't it working", "why isnt it working",
+            "help me with", "something wrong", "not working",
+            "debug this", "fix this"  # "fix this" alone is vague
+        ]
+        if any(p in q_lower for p in vague_patterns) and len(query.split()) < 12:
+            # Short vague query -> GENERAL (explore first to understand)
+            return QueryIntent.GENERAL
+        
         prompt = f"Classify this query: {query}"
         response = self.generate(prompt).strip().upper()
         
-        # Map response to intent
+        # Map response to intent (using keyword search for robustness)
+        response_upper = response.upper()
+        
+        # Check for specific intents in the response
+        if "EXPLORE" in response_upper:
+            return QueryIntent.EXPLORE
+        elif "REFACTOR" in response_upper:
+            return QueryIntent.REFACTOR
+        elif "TEST" in response_upper:
+            return QueryIntent.TEST
+        elif "SECURITY" in response_upper:
+            return QueryIntent.SECURITY
+        elif "DOCUMENT" in response_upper:
+            return QueryIntent.DOCUMENT
+        elif "GENERAL" in response_upper:
+            return QueryIntent.GENERAL
+            
+        # Fallback to exact map if needed (though above covers it)
         intent_map = {
             "EXPLORE": QueryIntent.EXPLORE,
             "REFACTOR": QueryIntent.REFACTOR,
@@ -155,23 +186,23 @@ class OrchestratorAgent(BaseAgent):
                 "description": "Single agent for code understanding"
             },
             QueryIntent.REFACTOR: {
-                "agent": "code_explorer",  # Will be "refactoring_crew" later
-                "use_crew": False,  # Will be True when crews implemented
-                "description": "Refactoring analysis"
+                "agent": "refactoring_crew",
+                "use_crew": True,
+                "description": "Multi-agent refactoring crew"
             },
             QueryIntent.TEST: {
-                "agent": "code_explorer",  # Will be "testing_crew" later
-                "use_crew": False,
-                "description": "Test generation"
+                "agent": "testing_crew",
+                "use_crew": True,
+                "description": "Iterative test generation crew"
             },
             QueryIntent.SECURITY: {
-                "agent": "code_explorer",  # Will be "security_agent" later
-                "use_crew": False,
-                "description": "Security analysis"
+                "agent": "review_crew",
+                "use_crew": True,
+                "description": "Code review and security analysis crew"
             },
             QueryIntent.DOCUMENT: {
-                "agent": "code_explorer",  # Will be "documenter_agent" later
-                "use_crew": False,
+                "agent": "refactoring_crew",  # Documenter is in RefactoringCrew
+                "use_crew": True,
                 "description": "Documentation generation"
             },
             QueryIntent.GENERAL: {

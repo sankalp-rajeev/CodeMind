@@ -22,7 +22,15 @@ tree-sitter>=0.20.0
 # Observability
 mlflow>=2.9.0
 
+# Testing (for TestingCrew)
+pytest>=7.0.0
+
 # Utilities
 pydantic>=2.0.0
 python-dotenv>=1.0.0
 tqdm>=4.66.0
+
+# Fine-tuning (QLoRA)
+# Install with: pip install -r requirements-finetune.txt
+# Or manually: pip install transformers peft bitsandbytes accelerate datasets trl
+# Requires CUDA GPU with 8-16GB VRAM

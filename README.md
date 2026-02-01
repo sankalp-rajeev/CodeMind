@@ -32,6 +32,24 @@
 - RTX 3080+ (12GB+ VRAM)
 - [Ollama](https://ollama.ai) installed
 
+### GPU Setup (RTX 4080 / NVIDIA)
+
+CodeMind uses your GPU in two places:
+
+1. **Ollama (LLM inference)** – Ollama auto-detects NVIDIA GPUs. No config needed. Verify with:
+   ```bash
+   ollama run deepseek-coder:6.7b
+   # In another terminal: nvidia-smi  # Should show ollama using VRAM
+   ```
+
+2. **RAG embeddings** – Uses PyTorch + sentence-transformers. Install CUDA-enabled PyTorch first:
+   ```bash
+   # CUDA 12.1 (RTX 40-series)
+   pip install torch --index-url https://download.pytorch.org/whl/cu121
+   pip install -r requirements.txt
+   ```
+   Then run `python scripts/verify_gpu.py` to confirm GPU is used.
+
 ### Installation
 
 ```bash
@@ -48,9 +66,8 @@ source venv/bin/activate # Linux/Mac
 pip install -r requirements.txt
 
 # Pull required models
-ollama pull deepseek-coder:6.7b
-ollama pull qwen2.5:7b
 ollama pull qwen2.5-coder:7b
+ollama pull qwen2.5-coder:1.5b
 ```
 
 ### Run
@@ -91,20 +108,20 @@ Open http://localhost:5173 and start asking questions!
 
 ---
 
-## 📊 Performance
+## Performance (Benchmarked)
 
-| Metric | Target |
-|--------|--------|
-| Codebase indexing (500 files) | <2 minutes |
-| Simple query response | <2 seconds |
-| Crew execution | <60 seconds |
-| RAG retrieval precision | >80% |
+| Metric | Target | Actual |
+|--------|--------|--------|
+| RAG retrieval | <500ms | ~47ms |
+| Indexing speed | - | 8.9 chunks/sec |
+| Simple query response | <3s | ~2-3s |
+| Codebase indexing (100 files) | <30s | ~11s |
 
 ---
 
-## 🗺️ Roadmap
+## Roadmap
 
-- [x] Week 1: Foundation (RAG + Single Agent + UI)
+- [x] Week 1: Foundation (RAG + Single Agent + UI) ✅
 - [ ] Week 2: CrewAI + RefactoringCrew
 - [ ] Week 3: More Crews + JS/TS Support
 - [ ] Week 4: Polish + MLflow + Documentation

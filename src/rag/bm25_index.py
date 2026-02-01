@@ -42,6 +42,13 @@ class BM25Index:
         Args:
             chunks: List of CodeChunk objects or dicts with 'content'
         """
+        if not chunks:
+            print("Warning: No chunks to index for BM25")
+            self.bm25 = None
+            self.chunks = []
+            self.tokenized_corpus = []
+            return
+        
         self.chunks = chunks
         self.tokenized_corpus = []
         

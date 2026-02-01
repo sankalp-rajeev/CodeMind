@@ -1,16 +1,16 @@
+# ===========================================
+# CodeMind Production .gitignore
+# Only production code is tracked
+# ===========================================
+
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
-
-# Markdown files (except README.md)
-*.md
-!README.md
-
-# Documentation (private)
-docs/
 .Python
+
+# Virtual environments
 venv/
 env/
 .venv/
@@ -21,18 +21,49 @@ ENV/
 .idea/
 *.swp
 *.swo
+.cursor/
 
-# Data (local only)
+# ===========================================
+# Development & Testing (NOT production)
+# ===========================================
+
+# All scripts (tests, benchmarks, demos, evaluations)
+scripts/
+
+# Test files
+tests/
+
+# Finetuning requirements (development only)
+requirements-finetune.txt
+
+# ===========================================
+# Models & Data (too large for git)
+# ===========================================
+
+# Trained models and checkpoints
+models/
+
+# Data directories
 data/
 chroma_db/
+
+# MLflow tracking
 mlruns/
 
-# Environment
+# ===========================================
+# Environment & Secrets
+# ===========================================
+
 .env
 .env.local
 *.env
+!.env.example
 
-# Build
+# ===========================================
+# Build & Dependencies
+# ===========================================
+
+# Python build
 dist/
 build/
 *.egg-info/
@@ -42,18 +73,32 @@ frontend/node_modules/
 frontend/dist/
 frontend/.cache/
 
-# Logs
+# ===========================================
+# Logs & Temporary
+# ===========================================
+
 *.log
 logs/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Agent workspace (personal)
-.agent/
-
-# Temporary
 tmp/
 temp/
 *.tmp
+
+# ===========================================
+# OS Files
+# ===========================================
+
+.DS_Store
+Thumbs.db
+
+# ===========================================
+# Misc
+# ===========================================
+
+# Agent workspace
+.agent/
+
+# Documentation (except README)
+docs/
+CODEMIND_PRODUCTION_SPEC.md
+EVALUATION_GROUND_TRUTH.md
+*.spec.md

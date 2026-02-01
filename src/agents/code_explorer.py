@@ -54,7 +54,7 @@ class CodeExplorerAgent(BaseAgent):
         self,
         retriever=None,
         model: str = "deepseek-coder:6.7b",
-        n_context_chunks: int = 5
+        n_context_chunks: int = 8
     ):
         """
         Initialize the Code Explorer agent.
@@ -79,7 +79,8 @@ class CodeExplorerAgent(BaseAgent):
         self,
         question: str,
         use_rag: bool = True,
-        stream: bool = False
+        stream: bool = False,
+        conversation_history: Optional[str] = None
     ) -> str | Generator[str, None, None]:
         """
         Answer a question about the codebase.
@@ -88,10 +89,14 @@ class CodeExplorerAgent(BaseAgent):
             question: User's question
             use_rag: Whether to use RAG for context
             stream: Whether to stream the response
+            conversation_history: Optional previous conversation context
             
         Returns:
             Answer string or generator for streaming
         """
+        if conversation_history:
+            question = f"{conversation_history}\n\nCurrent question: {question}"
+        
         if use_rag and self.retriever:
             # Retrieve relevant code context
             context = self._get_context(question)

@@ -6,6 +6,7 @@ Supports:
 - Adding chunks with embeddings
 - Persistent storage
 - Metadata filtering
+- Python, JavaScript, and TypeScript files
 """
 
 import os
@@ -23,6 +24,13 @@ except ImportError:
 
 from .chunker import CodeChunk, SemanticCodeChunker
 from .embeddings import CodeEmbedder
+
+# Import JS chunker
+try:
+    from .js_chunker import JSChunker, JSCodeChunk
+    JS_CHUNKER_AVAILABLE = True
+except ImportError:
+    JS_CHUNKER_AVAILABLE = False
 
 
 class CodebaseIndexer:
@@ -98,9 +106,36 @@ class CodebaseIndexer:
         if force_reindex:
             self.clear_collection()
         
-        # Chunk the codebase
+        # Chunk Python files
         chunker = SemanticCodeChunker()
-        chunks = chunker.chunk_directory(directory)
+        python_chunks = chunker.chunk_directory(directory)
+        
+        # Also chunk JS/TS files if available
+        all_chunks = list(python_chunks)
+        js_chunks = []
+        
+        if JS_CHUNKER_AVAILABLE:
+            js_chunker = JSChunker()
+            js_code_chunks = js_chunker.chunk_directory(directory)
+            
+            # Convert JSCodeChunk to CodeChunk for compatibility
+            for jc in js_code_chunks:
+                chunk = CodeChunk(
+                    id=jc.id,
+                    content=jc.content,
+                    type=jc.type,
+                    name=jc.name,
+                    filepath=jc.filepath,
+                    language=jc.language,
+                    start_line=jc.start_line,
+                    end_line=jc.end_line,
+                    metadata=jc.metadata
+                )
+                all_chunks.append(chunk)
+            
+            print(f"Found {len(js_code_chunks)} JS/TS chunks")
+        
+        chunks = all_chunks
         
         if not chunks:
             return {
@@ -110,15 +145,17 @@ class CodebaseIndexer:
                 "duration_seconds": 0
             }
         
-        print(f"Found {len(chunks)} chunks from {len(set(c.filepath for c in chunks))} files")
+        py_count = len(python_chunks)
+        js_count = len(chunks) - py_count
+        print(f"Found {len(chunks)} total chunks ({py_count} Python, {js_count} JS/TS) from {len(set(c.filepath for c in chunks))} files")
         
         # Generate embeddings
         print("Generating embeddings...")
         embeddings = self.embedder.embed_chunks(chunks, batch_size=batch_size)
         
-        # Prepare data for ChromaDB
+        # Prepare data for ChromaDB (sanitize content for Windows cp1252 compatibility)
         ids = [chunk.id for chunk in chunks]
-        documents = [chunk.content for chunk in chunks]
+        documents = [self._sanitize_for_chromadb(chunk.content) for chunk in chunks]
         metadatas = [self._chunk_to_metadata(chunk) for chunk in chunks]
         
         # Add to collection in batches
@@ -145,7 +182,7 @@ class CodebaseIndexer:
             "collection_size": self.collection.count()
         }
         
-        print(f"✅ Indexed {stats['chunks_indexed']} chunks in {stats['duration_seconds']}s")
+        print(f"[OK] Indexed {stats['chunks_indexed']} chunks in {stats['duration_seconds']}s")
         
         return stats
     
@@ -211,6 +248,22 @@ class CodebaseIndexer:
             "collection_name": self.collection.name
         }
     
+    def _sanitize_for_chromadb(self, text: str) -> str:
+        """Replace emojis/Unicode that cause cp1252 encoding errors on Windows."""
+        if not text:
+            return text
+        # Replace common emojis that break Windows cp1252
+        replacements = {
+            '\u2705': '[OK]',   # checkmark
+            '\u274c': '[X]',    # cross mark
+            '\u26a0\ufe0f': '[!]',  # warning
+            '\u26a0': '[!]',
+        }
+        result = text
+        for emoji, replacement in replacements.items():
+            result = result.replace(emoji, replacement)
+        return result
+
     def _chunk_to_metadata(self, chunk: CodeChunk) -> Dict[str, Any]:
         """Convert a CodeChunk to ChromaDB-compatible metadata."""
         # ChromaDB only supports string, int, float, bool for metadata
@@ -234,9 +287,9 @@ class CodebaseIndexer:
         if chunk.metadata.get('params'):
             metadata['params'] = ','.join(chunk.metadata['params'])
         
-        # Store first 200 chars of docstring
+        # Store first 200 chars of docstring (sanitize for Windows encoding)
         if chunk.metadata.get('docstring'):
-            metadata['docstring'] = chunk.metadata['docstring'][:200]
+            metadata['docstring'] = self._sanitize_for_chromadb(chunk.metadata['docstring'][:200])
         
         return metadata
 

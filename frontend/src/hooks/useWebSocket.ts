@@ -8,9 +8,21 @@ export interface Message {
     intent?: string
 }
 
+export interface RoutingStep {
+    step: string
+    icon: string
+    title: string
+    detail: string
+    timestamp: Date
+}
+
 interface WebSocketMessage {
-    type: 'token' | 'done' | 'error' | 'intent'
+    type: 'token' | 'done' | 'error' | 'intent' | 'routing_step'
     content?: string
+    step?: string
+    icon?: string
+    title?: string
+    detail?: string
 }
 
 export function useWebSocket(url: string) {
@@ -18,6 +30,7 @@ export function useWebSocket(url: string) {
     const [isConnected, setIsConnected] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [currentIntent, setCurrentIntent] = useState<string | null>(null)
+    const [routingSteps, setRoutingSteps] = useState<RoutingStep[]>([])
 
     const wsRef = useRef<WebSocket | null>(null)
     const currentMessageRef = useRef<string>('')
@@ -71,14 +84,27 @@ export function useWebSocket(url: string) {
                         })
                         break
 
+                    case 'routing_step':
+                        setRoutingSteps(prev => [...prev, {
+                            step: data.step || '',
+                            icon: data.icon || '⏳',
+                            title: data.title || '',
+                            detail: data.detail || '',
+                            timestamp: new Date()
+                        }])
+                        break
+
                     case 'done':
                         setIsLoading(false)
                         currentMessageRef.current = ''
                         setCurrentIntent(null)
+                        // Clear routing steps after a delay
+                        setTimeout(() => setRoutingSteps([]), 2000)
                         break
 
                     case 'error':
                         setIsLoading(false)
+                        setRoutingSteps([])
                         setMessages(prev => [
                             ...prev,
                             {
@@ -147,6 +173,7 @@ export function useWebSocket(url: string) {
         isConnected,
         isLoading,
         currentIntent,
+        routingSteps,
         sendMessage,
         connect
     }

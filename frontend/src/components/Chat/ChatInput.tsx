@@ -5,13 +5,22 @@ interface ChatInputProps {
     onSend: (message: string) => void
     isLoading: boolean
     disabled?: boolean
+    insertText?: string | null
+    onInsertConsumed?: () => void
 }
 
-export default function ChatInput({ onSend, isLoading, disabled }: ChatInputProps) {
+export default function ChatInput({ onSend, isLoading, disabled, insertText, onInsertConsumed }: ChatInputProps) {
     const [input, setInput] = useState('')
     const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-    // Auto-resize textarea
+    useEffect(() => {
+        if (insertText && insertText.trim()) {
+            setInput((prev) => (prev.trim() ? prev + ' ' + insertText : insertText))
+            textareaRef.current?.focus()
+            onInsertConsumed?.()
+        }
+    }, [insertText])
+
     useEffect(() => {
         if (textareaRef.current) {
             textareaRef.current.style.height = 'auto'
@@ -52,11 +61,11 @@ export default function ChatInput({ onSend, isLoading, disabled }: ChatInputProp
                     placeholder={placeholder}
                     disabled={isLoading || disabled}
                     rows={1}
-                    className="w-full resize-none rounded-xl bg-slate-800/80 border border-slate-600/50 px-4 py-3 pr-12 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 disabled:opacity-50 transition-all"
+                    className="w-full resize-none rounded-xl bg-surface-secondary border border-border px-4 py-3 pr-14 text-text-primary placeholder-text-muted text-[15px] focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand disabled:opacity-50 transition-all"
                     style={{ minHeight: '48px' }}
                 />
                 {input.length > 0 && (
-                    <span className="absolute right-3 bottom-3 text-xs text-slate-500">
+                    <span className="absolute right-3 bottom-3 text-xs text-text-muted font-mono">
                         {input.length}/2000
                     </span>
                 )}
@@ -64,12 +73,12 @@ export default function ChatInput({ onSend, isLoading, disabled }: ChatInputProp
             <button
                 onClick={handleSend}
                 disabled={!input.trim() || isLoading || disabled}
-                className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 disabled:from-slate-700 disabled:to-slate-700 disabled:cursor-not-allowed flex items-center justify-center transition-all shadow-lg shadow-blue-500/20 disabled:shadow-none"
+                className="flex-shrink-0 w-12 h-12 rounded-xl bg-brand hover:bg-brand-hover disabled:bg-surface-tertiary disabled:text-text-muted flex items-center justify-center transition-colors disabled:cursor-not-allowed shadow-sm"
             >
                 {isLoading ? (
                     <Loader2 className="w-5 h-5 text-white animate-spin" />
                 ) : (
-                    <Send className="w-5 h-5 text-white" />
+                    <Send className="w-5 h-5 text-white" strokeWidth={2} />
                 )}
             </button>
         </div>

@@ -84,10 +84,14 @@ class HybridRetriever:
         # Build BM25 index from the same chunks
         chunker = SemanticCodeChunker()
         chunks = chunker.chunk_directory(directory)
-        self.bm25.build_index(chunks)
-        self.bm25_built = True
         
-        stats['bm25_indexed'] = len(chunks)
+        if chunks:
+            self.bm25.build_index(chunks)
+            self.bm25_built = True
+            stats['bm25_indexed'] = len(chunks)
+        else:
+            self.bm25_built = False
+            stats['bm25_indexed'] = 0
         
         return stats
     
