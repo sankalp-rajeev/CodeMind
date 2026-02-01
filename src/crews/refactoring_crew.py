@@ -382,33 +382,71 @@ Include any code you find so downstream agents can refactor it."""
         Pre-load code content for the target (bypasses tool calling).
         Ollama models have limited tool support in CrewAI - we inject code directly.
         
+        Supports:
+        - Single files: "src/rag/retriever.py"
+        - Directories: "src/rag/" (loads all code files in directory)
+        
         Returns (content, source_description).
         content is None if we couldn't load anything.
         """
         import re
         target = target.strip()
         
+        project_root = Path(__file__).parent.parent.parent
+        bases = [
+            Path.cwd(),
+            project_root,
+            project_root / "data" / "Carla-Autonomous-Vehicle",
+            project_root / "data" / "Carla-Autonomous-Vehicle" / "carla_simulation code",
+        ]
+        
+        CODE_EXTENSIONS = ('.py', '.js', '.ts', '.jsx', '.tsx', '.java', '.cpp', '.c', '.h', '.go', '.rs')
+        MAX_TOTAL_CHARS = 15000  # Limit total content to avoid overwhelming Ollama
+        
+        # Check if target is a directory
+        for base in bases:
+            candidate = (base / target).resolve()
+            if candidate.exists() and candidate.is_dir():
+                # Load all code files from directory
+                files_content = []
+                total_chars = 0
+                
+                for file_path in sorted(candidate.rglob('*')):
+                    if file_path.is_file() and file_path.suffix in CODE_EXTENSIONS:
+                        try:
+                            content = file_path.read_text(encoding='utf-8', errors='ignore')
+                            rel_path = file_path.relative_to(candidate)
+                            
+                            # Truncate individual files if needed
+                            if len(content) > 4000:
+                                content = content[:4000] + "\n\n# ... truncated ..."
+                            
+                            if total_chars + len(content) > MAX_TOTAL_CHARS:
+                                files_content.append(f"\n# ... additional files truncated for size ...")
+                                break
+                            
+                            lang = "python" if file_path.suffix == '.py' else file_path.suffix[1:]
+                            files_content.append(f"### FILE: {rel_path}\n```{lang}\n{content}\n```")
+                            total_chars += len(content)
+                        except Exception:
+                            continue
+                
+                if files_content:
+                    return "\n\n".join(files_content), f"Directory: {target} ({len(files_content)} files)"
+        
         # Extract file path from target (e.g. "src/rag/retriever.py" or "retriever.py")
         file_path = None
         match = re.search(r'[\w./\\-]+\.(py|js|ts|jsx|tsx)', target)
         if match:
             file_path = match.group(0)
-        elif any(target.endswith(ext) for ext in ('.py', '.js', '.ts', '.jsx', '.tsx')):
+        elif any(target.endswith(ext) for ext in CODE_EXTENSIONS):
             file_path = target
         
-        # Try reading file
+        # Try reading single file
         if file_path:
-            path = Path(file_path)
-            project_root = Path(__file__).parent.parent.parent
-            bases = [
-                Path.cwd(),
-                project_root,
-                project_root / "data" / "Carla-Autonomous-Vehicle",
-                project_root / "data" / "Carla-Autonomous-Vehicle" / "carla_simulation code",
-            ]
             for base in bases:
                 candidate = (base / file_path).resolve()
-                if candidate.exists():
+                if candidate.exists() and candidate.is_file():
                     try:
                         content = candidate.read_text(encoding='utf-8', errors='ignore')
                         return content, str(candidate)
