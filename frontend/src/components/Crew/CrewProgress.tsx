@@ -28,61 +28,61 @@ export default function CrewProgress({ crewState, onClose, onCancel }: CrewProgr
         if (agent.status === 'done') {
             return <CheckCircle2 className="w-5 h-5 text-success" />
         } else if (agent.status === 'active') {
-            return <Loader2 className="w-5 h-5 text-brand animate-spin" />
+            return <Loader2 className="w-5 h-5 text-primary animate-spin" />
         } else {
-            return <Circle className="w-5 h-5 text-text-muted" />
+            return <Circle className="w-5 h-5 text-muted-foreground" />
         }
     }
 
     const getAgentBgClass = (agent: AgentState) => {
-        if (agent.status === 'done') return 'bg-green-50 border-green-200'
-        if (agent.status === 'active') return 'bg-brand-light border-brand/30 animate-pulse-subtle'
-        return 'bg-surface-secondary border-border'
+        if (agent.status === 'done') return 'bg-success/10 border-success/30'
+        if (agent.status === 'active') return 'bg-primary/10 border-primary/30 animate-pulse'
+        return 'bg-secondary border-border'
     }
 
     const currentAgent = agents[currentAgentIndex]
 
     return (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-surface rounded-2xl shadow-lg max-w-4xl w-full max-h-[90vh] overflow-hidden border border-border animate-fadeIn">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+            <div className="bg-background rounded-xl shadow-lg max-w-4xl w-full max-h-[90vh] overflow-hidden border border-border">
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-surface-secondary">
+                <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-secondary/50">
                     <div>
-                        <h2 className="text-lg font-semibold text-text-primary flex items-center gap-2">
-                            <Play className="w-5 h-5 text-brand" />
+                        <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                            <Play className="w-5 h-5 text-primary" />
                             RefactoringCrew
                         </h2>
-                        <p className="text-sm text-text-secondary mt-0.5">
-                            Target: <span className="text-text-primary font-medium">{target}</span>
-                            {focus && <> · Focus: <span className="text-brand font-medium">{focus}</span></>}
+                        <p className="text-sm text-muted-foreground mt-0.5">
+                            Target: <span className="text-foreground font-medium">{target}</span>
+                            {focus && <> · Focus: <span className="text-primary font-medium">{focus}</span></>}
                         </p>
                     </div>
                     <button
                         onClick={isRunning ? onCancel : onClose}
-                        className="p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-tertiary transition-colors"
+                        className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
                     >
                         <X className="w-5 h-5" />
                     </button>
                 </div>
 
                 {/* Agent Pipeline */}
-                <div className="px-6 py-5 border-b border-border bg-surface">
+                <div className="px-6 py-5 border-b border-border">
                     <div className="flex items-center justify-center gap-2 overflow-x-auto pb-2">
                         {agents.map((agent, index) => {
                             const AgentIcon = getAgentIcon(agent.name)
                             return (
                                 <div key={agent.name} className="flex items-center">
                                     <div
-                                        className={`flex flex-col items-center p-3 rounded-xl border transition-all duration-300 min-w-[90px] ${getAgentBgClass(agent)}`}
+                                        className={`flex flex-col items-center p-3 rounded-lg border transition-all duration-300 min-w-[90px] ${getAgentBgClass(agent)}`}
                                     >
-                                        <AgentIcon className="w-5 h-5 text-text-secondary mb-1" />
+                                        <AgentIcon className="w-5 h-5 text-muted-foreground mb-1" />
                                         {getAgentStatusIcon(agent)}
-                                        <span className="text-xs text-text-primary mt-2 text-center font-medium">
+                                        <span className="text-xs text-foreground mt-2 text-center font-medium">
                                             {agent.name.split(' ')[0]}
                                         </span>
                                     </div>
                                     {index < agents.length - 1 && (
-                                        <ArrowRight className={`w-5 h-5 mx-1 ${agent.status === 'done' ? 'text-success' : 'text-border-dark'}`} />
+                                        <ArrowRight className={`w-5 h-5 mx-1 ${agent.status === 'done' ? 'text-success' : 'text-border'}`} />
                                     )}
                                 </div>
                             )
@@ -91,11 +91,11 @@ export default function CrewProgress({ crewState, onClose, onCancel }: CrewProgr
                 </div>
 
                 {/* Output Area */}
-                <div className="px-6 py-4 max-h-[60vh] overflow-y-auto bg-surface-secondary">
+                <div className="px-6 py-4 max-h-[60vh] overflow-y-auto bg-secondary/30">
                     {error ? (
-                        <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
-                            <p className="text-danger font-medium">Error</p>
-                            <p className="text-danger/80 text-sm mt-1">{error}</p>
+                        <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-lg">
+                            <p className="text-destructive font-medium">Error</p>
+                            <p className="text-destructive/80 text-sm mt-1">{error}</p>
                         </div>
                     ) : finalResult ? (
                         <div>
@@ -108,11 +108,11 @@ export default function CrewProgress({ crewState, onClose, onCancel }: CrewProgr
                                 <div className="space-y-3">
                                     {agentOutputs.map((ao, idx) => (
                                         <details key={idx} className="group" open={idx === 0}>
-                                            <summary className="cursor-pointer p-3 bg-surface rounded-xl border border-border hover:border-brand/40 transition-colors font-medium text-text-primary">
+                                            <summary className="cursor-pointer p-3 bg-background rounded-lg border border-border hover:border-primary/40 transition-colors font-medium text-foreground">
                                                 {ao.agent}
                                             </summary>
-                                            <div className="mt-2 p-4 bg-surface rounded-xl border border-border">
-                                                <pre className="text-sm text-text-secondary whitespace-pre-wrap font-mono overflow-x-auto">
+                                            <div className="mt-2 p-4 bg-background rounded-lg border border-border">
+                                                <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-mono overflow-x-auto">
                                                     {ao.output}
                                                 </pre>
                                             </div>
@@ -120,8 +120,8 @@ export default function CrewProgress({ crewState, onClose, onCancel }: CrewProgr
                                     ))}
                                 </div>
                             ) : (
-                                <div className="p-4 bg-surface rounded-xl border border-border">
-                                    <pre className="text-sm text-text-secondary whitespace-pre-wrap font-mono">
+                                <div className="p-4 bg-background rounded-lg border border-border">
+                                    <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-mono">
                                         {finalResult}
                                     </pre>
                                 </div>
@@ -132,7 +132,7 @@ export default function CrewProgress({ crewState, onClose, onCancel }: CrewProgr
                             {(() => {
                                 const CurrentAgentIcon = getAgentIcon(currentAgent.name)
                                 return (
-                                    <p className="text-brand font-medium mb-3 flex items-center gap-2">
+                                    <p className="text-primary font-medium mb-3 flex items-center gap-2">
                                         <CurrentAgentIcon className="w-5 h-5" />
                                         {currentAgent.name} is working...
                                     </p>
@@ -142,16 +142,16 @@ export default function CrewProgress({ crewState, onClose, onCancel }: CrewProgr
                                 {currentAgent.output.map((line, i) => (
                                     <div
                                         key={i}
-                                        className="flex items-start gap-2 text-sm animate-fadeIn"
+                                        className="flex items-start gap-2 text-sm"
                                     >
-                                        <span className="text-text-muted font-mono text-xs mt-1">
+                                        <span className="text-muted-foreground font-mono text-xs mt-1">
                                             {String(i + 1).padStart(2, '0')}
                                         </span>
-                                        <span className="text-text-secondary">{line}</span>
+                                        <span className="text-muted-foreground">{line}</span>
                                     </div>
                                 ))}
                                 {isRunning && (
-                                    <div className="flex items-center gap-2 text-brand mt-4">
+                                    <div className="flex items-center gap-2 text-primary mt-4">
                                         <Loader2 className="w-4 h-4 animate-spin" />
                                         <span className="text-sm">Processing...</span>
                                     </div>
@@ -159,10 +159,10 @@ export default function CrewProgress({ crewState, onClose, onCancel }: CrewProgr
                             </div>
                         </div>
                     ) : (
-                        <div className="flex items-center justify-center h-32 text-text-muted">
+                        <div className="flex items-center justify-center h-32 text-muted-foreground">
                             {isRunning ? (
                                 <div className="flex items-center gap-2">
-                                    <Loader2 className="w-5 h-5 animate-spin text-brand" />
+                                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
                                     <span>Initializing crew...</span>
                                 </div>
                             ) : (
@@ -173,11 +173,11 @@ export default function CrewProgress({ crewState, onClose, onCancel }: CrewProgr
                 </div>
 
                 {/* Footer */}
-                <div className="px-6 py-4 border-t border-border bg-surface flex items-center justify-between">
-                    <div className="text-sm text-text-secondary">
+                <div className="px-6 py-4 border-t border-border flex items-center justify-between">
+                    <div className="text-sm text-muted-foreground">
                         {isRunning ? (
                             <span className="flex items-center gap-2">
-                                <span className="w-2 h-2 bg-brand rounded-full animate-pulse" />
+                                <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
                                 {currentAgentIndex + 1} of {agents.length} agents
                             </span>
                         ) : agents.length > 0 ? (
@@ -189,7 +189,11 @@ export default function CrewProgress({ crewState, onClose, onCancel }: CrewProgr
                     </div>
                     <button
                         onClick={isRunning ? onCancel : onClose}
-                        className={`btn ${isRunning ? 'bg-red-50 border-red-200 text-danger hover:bg-red-100' : 'btn-secondary'}`}
+                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                            isRunning 
+                                ? 'bg-destructive/10 border border-destructive/30 text-destructive hover:bg-destructive/20' 
+                                : 'border border-border bg-background text-foreground hover:bg-secondary'
+                        }`}
                     >
                         {isRunning ? 'Cancel' : 'Close'}
                     </button>

@@ -221,6 +221,145 @@ async def get_status() -> Dict[str, Any]:
     return status
 
 
+@app.post("/api/clear-index")
+async def clear_index() -> Dict[str, Any]:
+    """Clear the current index and reset state."""
+    global retriever
+    
+    try:
+        # Reset app state
+        app_state["indexed_directory"] = None
+        app_state["chunks_count"] = 0
+        app_state["is_ready"] = False
+        
+        # Clear the ChromaDB collection if retriever exists
+        if retriever is not None:
+            try:
+                # Get the chroma client and delete the collection
+                if hasattr(retriever, 'indexer') and retriever.indexer is not None:
+                    if hasattr(retriever.indexer, 'collection'):
+                        # Delete all items in the collection
+                        retriever.indexer.collection.delete(where={})
+            except Exception as e:
+                print(f"[Clear] Warning: Could not clear collection: {e}")
+            
+            # Reset the retriever
+            retriever = None
+        
+        return {"status": "success", "message": "Index cleared"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+class GitHubCloneRequest(BaseModel):
+    """Request to clone and index a GitHub repo."""
+    github_url: str
+    force_reindex: bool = False
+
+
+def parse_github_url(url: str) -> Tuple[str, str]:
+    """Parse GitHub URL to extract owner and repo name.
+    
+    Supports:
+    - https://github.com/owner/repo
+    - https://github.com/owner/repo.git
+    - github.com/owner/repo
+    """
+    import re
+    # Remove trailing slashes
+    url = url.rstrip('/')
+    # Remove .git suffix properly (not rstrip which removes characters)
+    if url.endswith('.git'):
+        url = url[:-4]
+    
+    # Match GitHub URL patterns
+    pattern = r'(?:https?://)?(?:www\.)?github\.com/([^/]+)/([^/]+)'
+    match = re.match(pattern, url)
+    
+    if not match:
+        raise ValueError(f"Invalid GitHub URL: {url}")
+    
+    owner, repo = match.groups()
+    return owner, repo
+
+
+def rmtree_windows_safe(path):
+    """Remove directory tree, handling Windows permission issues with .git folders."""
+    import shutil
+    import stat
+    
+    def on_rm_error(func, path, exc_info):
+        """Error handler for shutil.rmtree on Windows."""
+        # Change file to writable and try again
+        os.chmod(path, stat.S_IWRITE)
+        func(path)
+    
+    shutil.rmtree(path, onerror=on_rm_error)
+
+
+@app.post("/api/clone-and-index")
+async def clone_and_index(request: GitHubCloneRequest) -> Dict[str, Any]:
+    """Clone a GitHub repository and index it."""
+    import subprocess
+    
+    try:
+        owner, repo = parse_github_url(request.github_url)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+    # Create directory for GitHub repos
+    repos_dir = Path("./data/github-repos")
+    repos_dir.mkdir(parents=True, exist_ok=True)
+    
+    repo_path = repos_dir / repo
+    clone_url = f"https://github.com/{owner}/{repo}.git"
+    
+    try:
+        # Only clone if repo doesn't exist
+        # (Don't delete existing repos - just re-index them)
+        if not repo_path.exists():
+            # Clone with depth=1 for faster cloning (shallow clone)
+            result = await asyncio.to_thread(
+                subprocess.run,
+                ["git", "clone", "--depth", "1", clone_url, str(repo_path)],
+                capture_output=True,
+                text=True,
+                timeout=120  # 2 minute timeout
+            )
+            
+            if result.returncode != 0:
+                raise HTTPException(
+                    status_code=400, 
+                    detail=f"Failed to clone repo: {result.stderr}"
+                )
+        
+        # Now index the cloned repo
+        ret = get_retriever()
+        stats = await asyncio.to_thread(
+            ret.index_codebase,
+            str(repo_path),
+            force_reindex=request.force_reindex
+        )
+        
+        app_state["indexed_directory"] = str(repo_path)
+        app_state["chunks_count"] = stats.get("chunks_indexed", 0)
+        app_state["is_ready"] = True
+        
+        return {
+            "status": "success",
+            "repo": f"{owner}/{repo}",
+            "path": str(repo_path),
+            "chunks_indexed": stats.get("chunks_indexed", 0),
+            "files_processed": stats.get("files_processed", 0),
+            "duration_seconds": round(stats.get("duration_seconds", 0), 2)
+        }
+        
+    except subprocess.TimeoutExpired:
+        raise HTTPException(status_code=408, detail="Clone operation timed out")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.post("/api/index")
 async def index_codebase(request: IndexRequest) -> Dict[str, Any]:
     """Index a codebase directory."""
@@ -404,15 +543,57 @@ async def get_file_tree() -> Dict[str, Any]:
         return {"root": None, "tree": None, "error": str(e)}
 
 
+def load_directory_contents(directory: Path, max_files: int = 20) -> Tuple[str, List[str]]:
+    """Load code contents from a directory, concatenating all code files."""
+    CODE_EXTENSIONS = {'.py', '.js', '.ts', '.tsx', '.jsx', '.java', '.cpp', '.c', '.h', '.go', '.rs', '.rb'}
+    
+    files_content = []
+    files_loaded = []
+    
+    for file_path in sorted(directory.rglob('*')):
+        if file_path.is_file() and file_path.suffix in CODE_EXTENSIONS:
+            # Skip test files, __pycache__, node_modules, etc.
+            path_str = str(file_path)
+            if any(skip in path_str for skip in ['__pycache__', 'node_modules', '.git', 'venv', '.env']):
+                continue
+            
+            try:
+                content = file_path.read_text(encoding='utf-8', errors='ignore')
+                relative_path = file_path.relative_to(directory)
+                files_content.append(f"# === FILE: {relative_path} ===\n{content}")
+                files_loaded.append(str(relative_path))
+                
+                if len(files_loaded) >= max_files:
+                    break
+            except Exception:
+                continue
+    
+    return "\n\n".join(files_content), files_loaded
+
+
 @app.get("/api/read-file")
 async def read_file(path: str) -> Dict[str, Any]:
-    """Read file contents for Test/Review panels (relative to project root)."""
+    """Read file or directory contents for Test/Review panels (relative to project root)."""
     try:
+        # Remove trailing slashes
+        path = path.rstrip('/').rstrip('\\')
         p = Path(path)
         if not p.is_absolute():
             p = Path(__file__).parent.parent.parent / path
         if not p.exists():
-            raise HTTPException(status_code=404, detail=f"File not found: {path}")
+            raise HTTPException(status_code=404, detail=f"Path not found: {path}")
+        
+        # Handle directory - concatenate all code files
+        if p.is_dir():
+            content, files = load_directory_contents(p)
+            if not content:
+                raise HTTPException(status_code=400, detail=f"No code files found in directory: {path}")
+            return {
+                "content": content,
+                "path": path,
+                "is_directory": True,
+                "files_loaded": files
+            }
         content = p.read_text(encoding='utf-8', errors='ignore')
         return {"path": str(p), "content": content}
     except HTTPException:

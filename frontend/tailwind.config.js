@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+    darkMode: ["class"],
     content: [
         "./index.html",
         "./src/**/*.{js,ts,jsx,tsx}",
@@ -11,42 +12,125 @@ export default {
                 mono: ['JetBrains Mono', 'SF Mono', 'Consolas', 'monospace'],
             },
             colors: {
-                // YC-inspired color palette
-                brand: {
-                    DEFAULT: '#f26625',
-                    hover: '#e55a1b',
-                    light: '#fff7f3',
-                    muted: 'rgba(242, 102, 37, 0.08)',
+                border: "hsl(var(--border))",
+                input: "hsl(var(--input))",
+                ring: "hsl(var(--ring))",
+                background: "hsl(var(--background))",
+                foreground: "hsl(var(--foreground))",
+                primary: {
+                    DEFAULT: "hsl(var(--primary))",
+                    foreground: "hsl(var(--primary-foreground))",
                 },
-                surface: {
-                    DEFAULT: '#ffffff',
-                    secondary: '#fafafa',
-                    tertiary: '#f5f5f5',
+                secondary: {
+                    DEFAULT: "hsl(var(--secondary))",
+                    foreground: "hsl(var(--secondary-foreground))",
                 },
-                border: {
-                    DEFAULT: '#e5e5e5',
-                    light: '#f0f0f0',
-                    dark: '#d4d4d4',
+                destructive: {
+                    DEFAULT: "hsl(var(--destructive))",
+                    foreground: "hsl(var(--destructive-foreground))",
                 },
-                text: {
-                    primary: '#171717',
-                    secondary: '#525252',
-                    muted: '#a3a3a3',
+                muted: {
+                    DEFAULT: "hsl(var(--muted))",
+                    foreground: "hsl(var(--muted-foreground))",
                 },
-                success: '#16a34a',
-                danger: '#dc2626',
-                warning: '#ca8a04',
-            },
-            boxShadow: {
-                'sm': '0 1px 2px rgba(0, 0, 0, 0.04)',
-                'DEFAULT': '0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04)',
-                'md': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
-                'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03)',
-                'card': '0 0 0 1px rgba(0,0,0,0.03), 0 2px 4px rgba(0,0,0,0.05)',
+                accent: {
+                    DEFAULT: "hsl(var(--accent))",
+                    foreground: "hsl(var(--accent-foreground))",
+                },
+                popover: {
+                    DEFAULT: "hsl(var(--popover))",
+                    foreground: "hsl(var(--popover-foreground))",
+                },
+                card: {
+                    DEFAULT: "hsl(var(--card))",
+                    foreground: "hsl(var(--card-foreground))",
+                },
+                success: {
+                    DEFAULT: "hsl(var(--success))",
+                    foreground: "hsl(var(--success-foreground))",
+                },
+                warning: {
+                    DEFAULT: "hsl(var(--warning))",
+                    foreground: "hsl(var(--warning-foreground))",
+                },
+                sidebar: {
+                    DEFAULT: "hsl(var(--sidebar))",
+                    foreground: "hsl(var(--sidebar-foreground))",
+                    border: "hsl(var(--sidebar-border))",
+                },
             },
             borderRadius: {
-                'xl': '12px',
-                '2xl': '16px',
+                lg: "var(--radius)",
+                md: "calc(var(--radius) - 2px)",
+                sm: "calc(var(--radius) - 4px)",
+                xl: "12px",
+                "2xl": "16px",
+            },
+            boxShadow: {
+                'sm': '0 1px 2px rgba(0, 0, 0, 0.1)',
+                'DEFAULT': '0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08)',
+                'md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+            },
+            keyframes: {
+                "accordion-down": {
+                    from: { height: "0" },
+                    to: { height: "var(--radix-accordion-content-height)" },
+                },
+                "accordion-up": {
+                    from: { height: "var(--radix-accordion-content-height)" },
+                    to: { height: "0" },
+                },
+                "slide-in-from-right": {
+                    from: { transform: "translateX(100%)" },
+                    to: { transform: "translateX(0)" },
+                },
+                "slide-out-to-right": {
+                    from: { transform: "translateX(0)" },
+                    to: { transform: "translateX(100%)" },
+                },
+                "slide-in-from-left": {
+                    from: { transform: "translateX(-100%)" },
+                    to: { transform: "translateX(0)" },
+                },
+                "slide-out-to-left": {
+                    from: { transform: "translateX(0)" },
+                    to: { transform: "translateX(-100%)" },
+                },
+                "slide-in-from-top": {
+                    from: { transform: "translateY(-100%)" },
+                    to: { transform: "translateY(0)" },
+                },
+                "slide-out-to-top": {
+                    from: { transform: "translateY(0)" },
+                    to: { transform: "translateY(-100%)" },
+                },
+                "slide-in-from-bottom": {
+                    from: { transform: "translateY(100%)" },
+                    to: { transform: "translateY(0)" },
+                },
+                "slide-out-to-bottom": {
+                    from: { transform: "translateY(0)" },
+                    to: { transform: "translateY(100%)" },
+                },
+                "fade-in": {
+                    from: { opacity: "0" },
+                    to: { opacity: "1" },
+                },
+                "fade-out": {
+                    from: { opacity: "1" },
+                    to: { opacity: "0" },
+                },
+            },
+            animation: {
+                "accordion-down": "accordion-down 0.2s ease-out",
+                "accordion-up": "accordion-up 0.2s ease-out",
+                "slide-in-from-right": "slide-in-from-right 0.3s ease-out",
+                "slide-out-to-right": "slide-out-to-right 0.3s ease-out",
+                "slide-in-from-left": "slide-in-from-left 0.3s ease-out",
+                "slide-out-to-left": "slide-out-to-left 0.3s ease-out",
+                "fade-in": "fade-in 0.2s ease-out",
+                "fade-out": "fade-out 0.2s ease-out",
             },
         },
     },

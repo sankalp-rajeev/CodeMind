@@ -102,3 +102,15 @@ docs/
 CODEMIND_PRODUCTION_SPEC.md
 EVALUATION_GROUND_TRUTH.md
 *.spec.md
+TEST_SCENARIOS.md
+
+# External tools
+llama.cpp/
+
+# Root node_modules (shouldn't exist)
+/node_modules/
+/package.json
+/package-lock.json
+
+# Test reports
+stress_test_report.json
