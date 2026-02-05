@@ -1,0 +1,149 @@
+{
+  "model": "codegemma:7b",
+  "timestamp": "2026-02-03T01:47:47.036504",
+  "tests": [
+    {
+      "name": "fibonacci",
+      "difficulty": "easy",
+      "passed": false,
+      "generated_code": "import pytest\n\n@pytest.mark.parametrize(\"n, expected\", [\n    (0, 0),\n    (1, 1),\n    (2, 1),\n    (3, 2),\n    (4, 3),\n    (10, 55)\n])\ndef test_fibonacci(n, expected):\n    assert fibonacci(n) == expected\n\ndef test_negative_input():\n    with pytest.raises(RecursionError):\n        fibonacci(-1)",
+      "returncode": 1,
+      "stdout": ":test_fibonacci[1-1] PASSED                                 [ 28%]\ntest_code.py::test_fibonacci[2-1] PASSED                                 [ 42%]\ntest_code.py::test_fibonacci[3-2] PASSED                                 [ 57%]\ntest_code.py::test_fibonacci[4-3] PASSED                                 [ 71%]\ntest_code.py::test_fibonacci[10-55] PASSED                               [ 85%]\ntest_code.py::test_negative_input FAILED                                 [100%]\n\n================================== FAILURES ===================================\n_____________________________ test_negative_input _____________________________\ntest_code.py:18: in test_negative_input\n    with pytest.raises(RecursionError):\nE   Failed: DID NOT RAISE <class 'RecursionError'>\n=========================== short test summary info ===========================\nFAILED test_code.py::test_negative_input - Failed: DID NOT RAISE <class 'Recu...\n========================= 1 failed, 6 passed in 0.66s =========================\n",
+      "stderr": ""
+    },
+    {
+      "name": "reverse_string",
+      "difficulty": "easy",
+      "passed": true,
+      "generated_code": "import pytest\n\n@pytest.mark.parametrize(\"input, expected\", [\n    (\"hello\", \"olleh\"),\n    (\"world\", \"dlrow\"),\n    (\"\", \"\"),\n    (\"a\", \"a\"),\n    (\"12345\", \"54321\"),\n])\ndef test_reverse_string(input, expected):\n    assert reverse_string(input) == expected",
+      "returncode": 0,
+      "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.10.11, pytest-7.4.3, pluggy-1.5.0 -- C:\\Users\\rajee\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nrootdir: C:\\Users\\rajee\\AppData\\Local\\Temp\\tmphrmkp1m0\nplugins: anyio-4.9.0, hydra-core-1.3.2, langsmith-0.5.2, asyncio-0.21.1, time-machine-2.14.1\nasyncio: mode=strict\ncollecting ... collected 5 items\n\ntest_code.py::test_reverse_string[hello-olleh] PASSED                    [ 20%]\ntest_code.py::test_reverse_string[world-dlrow] PASSED                    [ 40%]\ntest_code.py::test_reverse_string[-] PASSED                              [ 60%]\ntest_code.py::test_reverse_string[a-a] PASSED                            [ 80%]\ntest_code.py::test_reverse_string[12345-54321] PASSED                    [100%]\n\n============================== 5 passed in 0.06s ==============================\n",
+      "stderr": ""
+    },
+    {
+      "name": "is_palindrome",
+      "difficulty": "easy",
+      "passed": false,
+      "generated_code": "import pytest\n\n@pytest.mark.parametrize(\"s\", [\n    \"racecar\",\n    \"madam\",\n    \"A man, a plan, a canal: Panama\",\n    \"Tacocat\"\n])\ndef test_palindrome_true(s):\n    assert is_palindrome(s)\n\n@pytest.mark.parametrize(\"s\", [\n    \"hello\",\n    \"world\",\n    \"Not a palindrome\"\n])\ndef test_palindrome_false(s):\n    assert not is_palindrome(s)",
+      "returncode": 1,
+      "stdout": "                  [ 28%]\ntest_code.py::test_palindrome_true[A man, a plan, a canal: Panama] FAILED [ 42%]\ntest_code.py::test_palindrome_true[Tacocat] PASSED                       [ 57%]\ntest_code.py::test_palindrome_false[hello] PASSED                        [ 71%]\ntest_code.py::test_palindrome_false[world] PASSED                        [ 85%]\ntest_code.py::test_palindrome_false[Not a palindrome] PASSED             [100%]\n\n================================== FAILURES ===================================\n____________ test_palindrome_true[A man, a plan, a canal: Panama] _____________\ntest_code.py:13: in test_palindrome_true\n    assert is_palindrome(s)\nE   AssertionError: assert False\nE    +  where False = is_palindrome('A man, a plan, a canal: Panama')\n=========================== short test summary info ===========================\nFAILED test_code.py::test_palindrome_true[A man, a plan, a canal: Panama] - A...\n========================= 1 failed, 6 passed in 0.19s =========================\n",
+      "stderr": ""
+    },
+    {
+      "name": "factorial",
+      "difficulty": "easy",
+      "passed": true,
+      "generated_code": "import pytest\n\n@pytest.mark.parametrize(\"n, expected\", [\n    (0, 1),\n    (1, 1),\n    (5, 120),\n    (10, 3628800),\n])\ndef test_factorial_positive(n, expected):\n    assert factorial(n) == expected\n\n@pytest.mark.parametrize(\"n\", [-1, -5])\ndef test_factorial_negative(n):\n    with pytest.raises(ValueError):\n        factorial(n)",
+      "returncode": 0,
+      "stdout": "arts =============================\nplatform win32 -- Python 3.10.11, pytest-7.4.3, pluggy-1.5.0 -- C:\\Users\\rajee\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nrootdir: C:\\Users\\rajee\\AppData\\Local\\Temp\\tmpczohn8mc\nplugins: anyio-4.9.0, hydra-core-1.3.2, langsmith-0.5.2, asyncio-0.21.1, time-machine-2.14.1\nasyncio: mode=strict\ncollecting ... collected 6 items\n\ntest_code.py::test_factorial_positive[0-1] PASSED                        [ 16%]\ntest_code.py::test_factorial_positive[1-1] PASSED                        [ 33%]\ntest_code.py::test_factorial_positive[5-120] PASSED                      [ 50%]\ntest_code.py::test_factorial_positive[10-3628800] PASSED                 [ 66%]\ntest_code.py::test_factorial_negative[-1] PASSED                         [ 83%]\ntest_code.py::test_factorial_negative[-5] PASSED                         [100%]\n\n============================== 6 passed in 0.06s ==============================\n",
+      "stderr": ""
+    },
+    {
+      "name": "two_sum",
+      "difficulty": "medium",
+      "passed": true,
+      "generated_code": "import pytest\n\n@pytest.mark.parametrize(\"nums, target, expected\", [\n    ([2, 7, 11, 15], 9, [0, 1]),\n    ([3, 2, 4], 6, [1, 2]),\n    ([3, 3], 6, [0, 1]),\n])\ndef test_two_sum(nums, target, expected):\n    assert two_sum(nums, target) == expected\n\ndef test_empty_input():\n    assert two_sum([], 0) == []\n\ndef test_invalid_input():\n    with pytest.raises(TypeError):\n        two_sum(\"hello\", 10)",
+      "returncode": 0,
+      "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.10.11, pytest-7.4.3, pluggy-1.5.0 -- C:\\Users\\rajee\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nrootdir: C:\\Users\\rajee\\AppData\\Local\\Temp\\tmp2cuomgzu\nplugins: anyio-4.9.0, hydra-core-1.3.2, langsmith-0.5.2, asyncio-0.21.1, time-machine-2.14.1\nasyncio: mode=strict\ncollecting ... collected 5 items\n\ntest_code.py::test_two_sum[nums0-9-expected0] PASSED                     [ 20%]\ntest_code.py::test_two_sum[nums1-6-expected1] PASSED                     [ 40%]\ntest_code.py::test_two_sum[nums2-6-expected2] PASSED                     [ 60%]\ntest_code.py::test_empty_input PASSED                                    [ 80%]\ntest_code.py::test_invalid_input PASSED                                  [100%]\n\n============================== 5 passed in 0.04s ==============================\n",
+      "stderr": ""
+    },
+    {
+      "name": "merge_sorted_lists",
+      "difficulty": "medium",
+      "passed": false,
+      "generated_code": "import pytest\n\n@pytest.mark.parametrize(\"list1, list2, expected\", [\n    ([1, 3, 5], [2, 4, 6], [1, 2, 3, 4, 5, 6]),\n    ([], [1, 2, 3], [1, 2, 3]),\n    ([1, 2, 3], [], [1, 2, 3]),\n    ([], [], []),\n    ([1, 2, 3], [1, 2, 3], [1, 1, 2, 2, 3, 3]),\n    ([1, 2, 3], [-1, -2, -3], [-3, -2, -1, 1, 2, 3]),\n])\ndef test_merge_sorted_lists(list1, list2, expected):\n    assert merge_sorted_lists(list1, list2) == expected",
+      "returncode": 1,
+      "stdout": "    [ 33%]\ntest_code.py::test_merge_sorted_lists[list12-list22-expected2] PASSED    [ 50%]\ntest_code.py::test_merge_sorted_lists[list13-list23-expected3] PASSED    [ 66%]\ntest_code.py::test_merge_sorted_lists[list14-list24-expected4] PASSED    [ 83%]\ntest_code.py::test_merge_sorted_lists[list15-list25-expected5] FAILED    [100%]\n\n================================== FAILURES ===================================\n______________ test_merge_sorted_lists[list15-list25-expected5] _______________\ntest_code.py:15: in test_merge_sorted_lists\n    assert merge_sorted_lists(list1, list2) == expected\nE   assert [-1, -2, -3, 1, 2, 3] == [-3, -2, -1, 1, 2, 3]\nE     At index 0 diff: -1 != -3\nE     Full diff:\nE     - [-3, -2, -1, 1, 2, 3]\nE     + [-1, -2, -3, 1, 2, 3]\n=========================== short test summary info ===========================\nFAILED test_code.py::test_merge_sorted_lists[list15-list25-expected5] - asser...\n========================= 1 failed, 5 passed in 0.19s =========================\n",
+      "stderr": ""
+    },
+    {
+      "name": "validate_email",
+      "difficulty": "medium",
+      "passed": false,
+      "generated_code": "import pytest\n\n@pytest.mark.parametrize(\"email, expected_result\", [\n    (\"valid@email.com\", True),\n    (\"invalid.email\", False),\n    (\"email@domain..com\", False),\n    (\"email@domain.123\", False),\n    (\"\", False),\n    (\"email@emailcom\", False)\n])\ndef test_validate_email(email, expected_result):\n    assert validate_email(email) == expected_result",
+      "returncode": 1,
+      "stdout": " [ 16%]\ntest_code.py::test_validate_email[invalid.email-False] PASSED            [ 33%]\ntest_code.py::test_validate_email[email@domain..com-False] FAILED        [ 50%]\ntest_code.py::test_validate_email[email@domain.123-False] PASSED         [ 66%]\ntest_code.py::test_validate_email[-False] PASSED                         [ 83%]\ntest_code.py::test_validate_email[email@emailcom-False] PASSED           [100%]\n\n================================== FAILURES ===================================\n________________ test_validate_email[email@domain..com-False] _________________\ntest_code.py:15: in test_validate_email\n    assert validate_email(email) == expected_result\nE   AssertionError: assert True == False\nE    +  where True = validate_email('email@domain..com')\n=========================== short test summary info ===========================\nFAILED test_code.py::test_validate_email[email@domain..com-False] - Assertion...\n========================= 1 failed, 5 passed in 0.22s =========================\n",
+      "stderr": ""
+    },
+    {
+      "name": "flatten_list",
+      "difficulty": "medium",
+      "passed": true,
+      "generated_code": "import pytest\n\n@pytest.mark.parametrize(\"nested, expected\", [\n    ([], []),\n    ([1, 2, 3], [1, 2, 3]),\n    ([[1, 2], [3, 4]], [1, 2, 3, 4]),\n    ([1, [2, [3, 4]], 5], [1, 2, 3, 4, 5]),\n])\ndef test_flatten_list(nested, expected):\n    assert flatten_list(nested) == expected",
+      "returncode": 0,
+      "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.10.11, pytest-7.4.3, pluggy-1.5.0 -- C:\\Users\\rajee\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nrootdir: C:\\Users\\rajee\\AppData\\Local\\Temp\\tmpmlb9soz0\nplugins: anyio-4.9.0, hydra-core-1.3.2, langsmith-0.5.2, asyncio-0.21.1, time-machine-2.14.1\nasyncio: mode=strict\ncollecting ... collected 4 items\n\ntest_code.py::test_flatten_list[nested0-expected0] PASSED                [ 25%]\ntest_code.py::test_flatten_list[nested1-expected1] PASSED                [ 50%]\ntest_code.py::test_flatten_list[nested2-expected2] PASSED                [ 75%]\ntest_code.py::test_flatten_list[nested3-expected3] PASSED                [100%]\n\n============================== 4 passed in 0.05s ==============================\n",
+      "stderr": ""
+    },
+    {
+      "name": "find_duplicates",
+      "difficulty": "medium",
+      "passed": true,
+      "generated_code": "import pytest\n\n@pytest.mark.parametrize(\"nums, expected\", [\n    ([1, 2, 3, 4], []),\n    ([1, 2, 3, 4, 1], [1]),\n    ([1, 2, 3, 4, 2], [2]),\n    ([1, 2, 3, 4, 1, 2], [1, 2]),\n])\ndef test_find_duplicates(nums, expected):\n    assert find_duplicates(nums) == expected",
+      "returncode": 0,
+      "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.10.11, pytest-7.4.3, pluggy-1.5.0 -- C:\\Users\\rajee\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nrootdir: C:\\Users\\rajee\\AppData\\Local\\Temp\\tmpifhpk8h6\nplugins: anyio-4.9.0, hydra-core-1.3.2, langsmith-0.5.2, asyncio-0.21.1, time-machine-2.14.1\nasyncio: mode=strict\ncollecting ... collected 4 items\n\ntest_code.py::test_find_duplicates[nums0-expected0] PASSED               [ 25%]\ntest_code.py::test_find_duplicates[nums1-expected1] PASSED               [ 50%]\ntest_code.py::test_find_duplicates[nums2-expected2] PASSED               [ 75%]\ntest_code.py::test_find_duplicates[nums3-expected3] PASSED               [100%]\n\n============================== 4 passed in 0.05s ==============================\n",
+      "stderr": ""
+    },
+    {
+      "name": "stack_class",
+      "difficulty": "hard",
+      "passed": true,
+      "generated_code": "import pytest\n\ndef test_push():\n    stack = Stack()\n    stack.push(1)\n    assert stack.size() == 1\n\ndef test_pop():\n    stack = Stack()\n    stack.push(1)\n    assert stack.pop() == 1\n    assert stack.size() == 0\n\ndef test_peek():\n    stack = Stack()\n    stack.push(1)\n    assert stack.peek() == 1\n    assert stack.size() == 1\n\ndef test_pop_empty():\n    stack = Stack()\n    with pytest.raises(IndexError):\n        stack.pop()\n\ndef test_peek_empty():\n    stack = Stack()\n    with pytest.raises(IndexErro",
+      "returncode": 0,
+      "stdout": "3, pluggy-1.5.0 -- C:\\Users\\rajee\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nrootdir: C:\\Users\\rajee\\AppData\\Local\\Temp\\tmprra325ds\nplugins: anyio-4.9.0, hydra-core-1.3.2, langsmith-0.5.2, asyncio-0.21.1, time-machine-2.14.1\nasyncio: mode=strict\ncollecting ... collected 7 items\n\ntest_code.py::test_push PASSED                                           [ 14%]\ntest_code.py::test_pop PASSED                                            [ 28%]\ntest_code.py::test_peek PASSED                                           [ 42%]\ntest_code.py::test_pop_empty PASSED                                      [ 57%]\ntest_code.py::test_peek_empty PASSED                                     [ 71%]\ntest_code.py::test_is_empty PASSED                                       [ 85%]\ntest_code.py::test_size PASSED                                           [100%]\n\n============================== 7 passed in 0.06s ==============================\n",
+      "stderr": ""
+    },
+    {
+      "name": "lru_cache",
+      "difficulty": "hard",
+      "passed": false,
+      "generated_code": "import pytest\nfrom collections import OrderedDict\n\nclass LRUCache:\n    # ... (code from the original problem)\n\ndef test_get_missing_key():\n    cache = LRUCache(capacity=2)\n    assert cache.get(\"key\") is None\n\ndef test_put_and_get():\n    cache = LRUCache(capacity=2)\n    cache.put(\"key1\", \"value1\")\n    assert cache.get(\"key1\") == \"value1\"\n\ndef test_capacity_limit():\n    cache = LRUCache(capacity=2)\n    cache.put(\"key1\", \"value1\")\n    cache.put(\"key2\", \"value2\")\n    cache.put(\"key3\", \"value3\")\n    ",
+      "returncode": 2,
+      "stdout": "Cache\\local-packages\\Python310\\site-packages\\_pytest\\assertion\\rewrite.py:177: in exec_module\n    source_stat, co = _rewrite_test(fn, self.config)\n..\\..\\Packages\\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python310\\site-packages\\_pytest\\assertion\\rewrite.py:359: in _rewrite_test\n    tree = ast.parse(source, filename=strfn)\nC:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.10_3.10.3056.0_x64__qbz5n2kfra8p0\\lib\\ast.py:50: in parse\n    return compile(source, filename, mode, flags,\nE     File \"C:\\Users\\rajee\\AppData\\Local\\Temp\\tmp1ptv1pkg\\test_code.py\", line 10\nE       def test_get_missing_key():\nE       ^^^\nE   IndentationError: expected an indented block after class definition on line 7\n=========================== short test summary info ===========================\nERROR test_code.py\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n============================== 1 error in 0.37s ===============================\n",
+      "stderr": ""
+    },
+    {
+      "name": "binary_search_tree",
+      "difficulty": "hard",
+      "passed": true,
+      "generated_code": "import pytest\n\n@pytest.fixture\ndef bst():\n    return BST()\n\ndef test_empty_tree(bst):\n    assert not bst.search(1)\n\ndef test_single_element(bst):\n    bst.insert(5)\n    assert bst.search(5)\n\ndef test_duplicate_elements(bst):\n    bst.insert(5)\n    bst.insert(5)\n    assert bst.search(5)\n\ndef test_left_subtree(bst):\n    bst.insert(5)\n    bst.insert(3)\n    assert bst.search(3)\n\ndef test_right_subtree(bst):\n    bst.insert(5)\n    bst.insert(7)\n    assert bst.search(7)\n\ndef test_large_tree(bst):\n    for",
+      "returncode": 0,
+      "stdout": "arts =============================\nplatform win32 -- Python 3.10.11, pytest-7.4.3, pluggy-1.5.0 -- C:\\Users\\rajee\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nrootdir: C:\\Users\\rajee\\AppData\\Local\\Temp\\tmp5ugi5tjt\nplugins: anyio-4.9.0, hydra-core-1.3.2, langsmith-0.5.2, asyncio-0.21.1, time-machine-2.14.1\nasyncio: mode=strict\ncollecting ... collected 6 items\n\ntest_code.py::test_empty_tree PASSED                                     [ 16%]\ntest_code.py::test_single_element PASSED                                 [ 33%]\ntest_code.py::test_duplicate_elements PASSED                             [ 50%]\ntest_code.py::test_left_subtree PASSED                                   [ 66%]\ntest_code.py::test_right_subtree PASSED                                  [ 83%]\ntest_code.py::test_large_tree PASSED                                     [100%]\n\n============================== 6 passed in 0.06s ==============================\n",
+      "stderr": ""
+    },
+    {
+      "name": "rate_limiter",
+      "difficulty": "hard",
+      "passed": true,
+      "generated_code": "import pytest\n\n@pytest.fixture\ndef rate_limiter():\n    return RateLimiter(max_requests=10, window_seconds=1)\n\ndef test_allow_request_within_limit(rate_limiter):\n    for _ in range(5):\n        assert rate_limiter.allow_request() is True\n\ndef test_allow_request_exceeds_limit(rate_limiter):\n    for _ in range(10):\n        assert rate_limiter.allow_request() is True\n    assert rate_limiter.allow_request() is False\n\ndef test_allow_request_new_window(rate_limiter):\n    for _ in range(10):\n        asse",
+      "returncode": 0,
+      "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.10.11, pytest-7.4.3, pluggy-1.5.0 -- C:\\Users\\rajee\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nrootdir: C:\\Users\\rajee\\AppData\\Local\\Temp\\tmpatzxxp5_\nplugins: anyio-4.9.0, hydra-core-1.3.2, langsmith-0.5.2, asyncio-0.21.1, time-machine-2.14.1\nasyncio: mode=strict\ncollecting ... collected 3 items\n\ntest_code.py::test_allow_request_within_limit PASSED                     [ 33%]\ntest_code.py::test_allow_request_exceeds_limit PASSED                    [ 66%]\ntest_code.py::test_allow_request_new_window PASSED                       [100%]\n\n============================== 3 passed in 1.05s ==============================\n",
+      "stderr": ""
+    },
+    {
+      "name": "safe_divide",
+      "difficulty": "medium",
+      "passed": true,
+      "generated_code": "import pytest\n\n@pytest.mark.parametrize(\"a, b, expected\", [\n    (10, 2, 5),\n    (5, 0, None),\n    (-10, 2, -5),\n    (0, 2, 0),\n])\ndef test_safe_divide(a, b, expected):\n    assert safe_divide(a, b) == expected",
+      "returncode": 0,
+      "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.10.11, pytest-7.4.3, pluggy-1.5.0 -- C:\\Users\\rajee\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nrootdir: C:\\Users\\rajee\\AppData\\Local\\Temp\\tmpzt951380\nplugins: anyio-4.9.0, hydra-core-1.3.2, langsmith-0.5.2, asyncio-0.21.1, time-machine-2.14.1\nasyncio: mode=strict\ncollecting ... collected 4 items\n\ntest_code.py::test_safe_divide[10-2-5] PASSED                            [ 25%]\ntest_code.py::test_safe_divide[5-0-None] PASSED                          [ 50%]\ntest_code.py::test_safe_divide[-10-2--5] PASSED                          [ 75%]\ntest_code.py::test_safe_divide[0-2-0] PASSED                             [100%]\n\n============================== 4 passed in 0.05s ==============================\n",
+      "stderr": ""
+    },
+    {
+      "name": "parse_int_safe",
+      "difficulty": "medium",
+      "passed": true,
+      "generated_code": "import pytest\n\n@pytest.mark.parametrize(\"s, expected\", [(\"123\", 123), (\"\", 0), (\"abc\", 0)])\ndef test_parse_int_safe(s, expected):\n    assert parse_int_safe(s) == expected",
+      "returncode": 0,
+      "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.10.11, pytest-7.4.3, pluggy-1.5.0 -- C:\\Users\\rajee\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\\python.exe\ncachedir: .pytest_cache\nrootdir: C:\\Users\\rajee\\AppData\\Local\\Temp\\tmphxx1fp94\nplugins: anyio-4.9.0, hydra-core-1.3.2, langsmith-0.5.2, asyncio-0.21.1, time-machine-2.14.1\nasyncio: mode=strict\ncollecting ... collected 3 items\n\ntest_code.py::test_parse_int_safe[123-123] PASSED                        [ 33%]\ntest_code.py::test_parse_int_safe[-0] PASSED                             [ 66%]\ntest_code.py::test_parse_int_safe[abc-0] PASSED                          [100%]\n\n============================== 3 passed in 0.04s ==============================\n",
+      "stderr": ""
+    }
+  ],
+  "summary": {
+    "easy": 2,
+    "medium": 5,
+    "hard": 3
+  },
+  "total_passed": 10,
+  "total_tests": 15,
+  "pass_rate": 0.6666666666666666
+}

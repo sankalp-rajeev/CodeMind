@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-02-01T22:31:18.879916",
+  "intent_classification": {
+    "baseline": 0.9636,
+    "improved": 0.7091,
+    "delta": -0.2545
+  },
+  "retrieval_recall_at_5": {
+    "baseline": 1.0,
+    "improved": 1.0,
+    "delta": 0.0
+  },
+  "self_correction_pass_rate": {
+    "pass_at_1": 0.0,
+    "pass_at_3": 0.4839,
+    "baseline": 0.0,
+    "improved": 0.4839,
+    "delta": 0.4839
+  },
+  "hallucination_invalid_rate": {
+    "baseline": 0.92,
+    "improved": 0.98,
+    "delta": 0.06
+  }
+}

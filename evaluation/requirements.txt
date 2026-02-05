@@ -1,0 +1,8 @@
+# Evaluation dependencies (in addition to main requirements.txt)
+# Run from project root: pip install -r requirements.txt && pip install -r evaluation/requirements.txt
+
+# Already in main requirements:
+# ollama, chromadb, sentence-transformers, rank-bm25, crewai, fastapi, etc.
+
+# Evaluation-specific (minimal - most come from main)
+# No additional packages required if main requirements are installed

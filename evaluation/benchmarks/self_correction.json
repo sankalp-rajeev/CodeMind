@@ -1,0 +1,161 @@
+{
+  "version": "2.0",
+  "description": "CodeMind self-correction benchmark: actual CodeMind code. TestingCrew generates tests. Pass@1 = single attempt, Pass@3 = up to 3 iterations.",
+  "tasks": [
+    {
+      "id": "count_tokens",
+      "code": "def count_tokens(text: str) -> int:\n    \"\"\"Approximate token count (4 chars ≈ 1 token).\"\"\"\n    return len(text) // 4",
+      "file": "src/memory/conversation.py"
+    },
+    {
+      "id": "add",
+      "code": "def add(a: int, b: int) -> int:\n    \"\"\"Add two numbers.\"\"\"\n    return a + b",
+      "file": "src/crews/testing_crew.py"
+    },
+    {
+      "id": "divide",
+      "code": "def divide(a: float, b: float) -> float:\n    \"\"\"Divide a by b.\"\"\"\n    if b == 0:\n        raise ValueError(\"Cannot divide by zero\")\n    return a / b",
+      "file": "src/crews/testing_crew.py"
+    },
+    {
+      "id": "parse_github_url",
+      "code": "def parse_github_url(url: str):\n    import re\n    url = url.rstrip('/')\n    if url.endswith('.git'):\n        url = url[:-4]\n    pattern = r'(?:https?://)?(?:www\\.)?github\\.com/([^/]+)/([^/]+)'\n    match = re.match(pattern, url)\n    if not match:\n        raise ValueError(f\"Invalid GitHub URL: {url}\")\n    return match.groups()",
+      "file": "src/api/main.py"
+    },
+    {
+      "id": "is_even",
+      "code": "def is_even(n: int) -> bool:\n    return n % 2 == 0",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "factorial",
+      "code": "def factorial(n: int) -> int:\n    if n < 0:\n        raise ValueError('n must be non-negative')\n    if n == 0:\n        return 1\n    return n * factorial(n - 1)",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "reverse_string",
+      "code": "def reverse_string(s: str) -> str:\n    return s[::-1]",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "gcd",
+      "code": "def gcd(a: int, b: int) -> int:\n    while b:\n        a, b = b, a % b\n    return abs(a)",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "clamp",
+      "code": "def clamp(value: float, low: float, high: float) -> float:\n    return max(low, min(high, value))",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "sum_list",
+      "code": "def sum_list(nums: list) -> float:\n    return sum(nums)",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "average",
+      "code": "def average(nums: list) -> float:\n    if not nums:\n        raise ValueError('List cannot be empty')\n    return sum(nums) / len(nums)",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "contains",
+      "code": "def contains(lst: list, item) -> bool:\n    return item in lst",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "fibonacci",
+      "code": "def fibonacci(n: int) -> int:\n    if n <= 0:\n        return 0\n    if n == 1:\n        return 1\n    return fibonacci(n-1) + fibonacci(n-2)",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "is_palindrome",
+      "code": "def is_palindrome(s: str) -> bool:\n    return s == s[::-1]",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "max_of_three",
+      "code": "def max_of_three(a: int, b: int, c: int) -> int:\n    return max(a, b, c)",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "min_max",
+      "code": "def min_max(nums: list) -> tuple:\n    if not nums:\n        raise ValueError('List cannot be empty')\n    return (min(nums), max(nums))",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "dedupe",
+      "code": "def dedupe(lst: list) -> list:\n    return list(dict.fromkeys(lst))",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "truncate",
+      "code": "def truncate(s: str, max_len: int) -> str:\n    if len(s) <= max_len:\n        return s\n    return s[:max_len-3] + '...'",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "validate_email",
+      "code": "def validate_email(s: str) -> bool:\n    return '@' in s and '.' in s.split('@')[-1]",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "validate_range",
+      "code": "def validate_range(value: float, low: float, high: float) -> bool:\n    return low <= value <= high",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "linear_search",
+      "code": "def linear_search(lst: list, target) -> int:\n    for i, x in enumerate(lst):\n        if x == target:\n            return i\n    return -1",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "binary_search",
+      "code": "def binary_search(lst: list, target) -> int:\n    lo, hi = 0, len(lst) - 1\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if lst[mid] == target:\n            return mid\n        if lst[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n    return -1",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "chunk_list",
+      "code": "def chunk_list(lst: list, size: int) -> list:\n    return [lst[i:i+size] for i in range(0, len(lst), size)]",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "merge_dicts",
+      "code": "def merge_dicts(a: dict, b: dict) -> dict:\n    return {**a, **b}",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "get_nested",
+      "code": "def get_nested(d: dict, path: str, default=None):\n    keys = path.split('.')\n    for k in keys:\n        d = d.get(k, {}) if isinstance(d, dict) else default\n    return d if d != {} else default",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "coalesce",
+      "code": "def coalesce(*args):\n    for a in args:\n        if a is not None:\n            return a\n    return None",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "empty_or_none",
+      "code": "def empty_or_none(val) -> bool:\n    return val is None or (hasattr(val, '__len__') and len(val) == 0)",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "normalize",
+      "code": "def normalize(value: float, min_val: float, max_val: float) -> float:\n    if max_val == min_val:\n        return 0.0\n    return (value - min_val) / (max_val - min_val)",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "slugify",
+      "code": "def slugify(s: str) -> str:\n    return s.lower().replace(' ', '-').replace('_', '-')",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "lcm",
+      "code": "def lcm(a: int, b: int) -> int:\n    def gcd(a, b):\n        while b: a, b = b, a % b\n        return abs(a)\n    return abs(a * b) // gcd(a, b) if a and b else 0",
+      "file": "src/utils/__init__.py"
+    },
+    {
+      "id": "is_prime",
+      "code": "def is_prime(n: int) -> bool:\n    if n < 2:\n        return False\n    for i in range(2, int(n**0.5) + 1):\n        if n % i == 0:\n            return False\n    return True",
+      "file": "src/utils/__init__.py"
+    }
+  ]
+}

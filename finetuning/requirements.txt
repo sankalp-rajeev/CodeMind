@@ -1,0 +1,17 @@
+# Fine-tuning: Testing Agent (DeepSeek-Coder 6.7B)
+# Requires: CUDA GPU, pip install torch --index-url https://download.pytorch.org/whl/cu121
+#
+# For Unsloth (2x faster, 70% less VRAM): pip install unsloth
+# Then run: python -m finetuning.train_stage_a_unsloth
+
+torch>=2.1.0
+transformers>=4.37.0
+datasets>=2.16.0
+accelerate>=0.26.0
+peft>=0.8.0
+bitsandbytes>=0.42.0
+trl>=0.7.0
+python-dotenv>=1.0.0
+
+# Unsloth — 2x faster training, 70% less VRAM (optional)
+unsloth
