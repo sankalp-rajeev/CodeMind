@@ -31,7 +31,7 @@ The system combines two powerful paradigms: Retrieval-Augmented Generation (RAG)
 
 CodeMind follows a modular architecture with three main layers: a React frontend for user interaction, a FastAPI backend for orchestration and API management, and a multi-agent system powered by CrewAI and local LLMs via Ollama.
 
-![Architecture](mermaid_arch.png)
+![Architecture](mermaid_arch1.png)
 
 ### The Data Flow
 
